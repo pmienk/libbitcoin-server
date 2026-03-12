@@ -4,433 +4,314 @@
 #         GENERATED SOURCE CODE, DO NOT EDIT EXCEPT EXPERIMENTALLY
 #
 ###############################################################################
+cmake_minimum_required(VERSION 3.30 FATAL_ERROR)
 
-# libbitcoin-server project configuration.
+project( libbitcoin-server
+  VERSION 4.0.0
+  DESCRIPTION "Bitcoin Full Node and Query Server"
+  LANGUAGES C CXX )
+
+
+set( repository_root_dir "${CMAKE_CURRENT_SOURCE_DIR}/../../" )
+
+if ( MSVC )
+  set( CMAKE_STATIC_LIBRARY_PREFIX "lib" )
+  set( CMAKE_SHARED_LIBRARY_PREFIX "lib" )
+endif()
+
 #------------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+# Project options.
+#------------------------------------------------------------------------------
+option( with-test "Build test." ON )
+option( with-console "Build console." ON )
 
-project(libbitcoin-server LANGUAGES C CXX)
+#------------------------------------------------------------------------------
+# Dependencies.
+#------------------------------------------------------------------------------
 
-enable_testing()
+if ( BUILD_SHARED_LIBS )
+  set( bitcoin-node_USE_STATIC_LIBS "OFF" )
+  set( Boost_USE_STATIC_LIBS "OFF" )
+else()
+  set( bitcoin-node_USE_STATIC_LIBS "ON" )
+  set( Boost_USE_STATIC_LIBS "ON" )
+endif()
 
-list( APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/modules" )
-include(CheckIncludeFiles)
-include(CheckSymbolExists)
+find_package( bitcoin-node 4.0.0 REQUIRED )
+
+find_package( Boost 1.86.0 REQUIRED
+  COMPONENTS
+    unit_test_framework
+)
+#------------------------------------------------------------------------------
+# Compiler options.
+#------------------------------------------------------------------------------
+
+include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceCompiles)
-include(CheckLinkerFlag)
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-if (MSVC)
-  set( CANONICAL_LIB_NAME libbitcoin-server )
-else ()
-  set( CANONICAL_LIB_NAME bitcoin-server )
-  find_package( PkgConfig REQUIRED )
-
-  set( prefix "${CMAKE_PREFIX_PATH}" )
-  set( exec_prefix "\${prefix}" )
-  set( libdir "\${exec_prefix}/lib" )
-  set( includedir "\${exec_prefix}/include" )
-
-  set( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
-
-  set( PACKAGE_VERSION "4.0.0" )
-  set( VERSION "${PACKAGE_VERSION}" )
-endif ()
-
-set( CMAKE_CXX_STANDARD 20 )
-set( CMAKE_CXX_STANDARD_REQUIRED ON )
-
-# Add compiler options
-#------------------------------------------------------------------------------
-# Warn on all stuff.
 check_cxx_compiler_flag( "-Wall" HAS_FLAG_WALL )
-if ( HAS_FLAG_WALL )
-    add_compile_options( $<$<COMPILE_LANGUAGE:CXX>:-Wall> )
-else()
-    message( FATAL_ERROR "Compiler does not support -Wall" )
+if ( !HAS_FLAG_WALL )
+    message( FATAL_ERROR "Compiler does not support '-Wall'." )
 endif()
 
-# Warn on extra stuff.
 check_cxx_compiler_flag( "-Wextra" HAS_FLAG_WEXTRA )
-if ( HAS_FLAG_WEXTRA )
-    add_compile_options( $<$<COMPILE_LANGUAGE:CXX>:-Wextra> )
-else()
-    message( FATAL_ERROR "Compiler does not support -Wextra" )
+if ( !HAS_FLAG_WEXTRA )
+    message( FATAL_ERROR "Compiler does not support '-Wextra'." )
 endif()
 
-# Disallow warning on style order of declarations.
 check_cxx_compiler_flag( "-Wno-reorder" HAS_FLAG_WNO-REORDER )
-if ( HAS_FLAG_WNO-REORDER )
-    add_compile_options( $<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder> )
-else()
-    message( FATAL_ERROR "Compiler does not support -Wno-reorder" )
+if ( !HAS_FLAG_WNO-REORDER )
+    message( FATAL_ERROR "Compiler does not support '-Wno-reorder'." )
 endif()
 
-# Suppress warning for incomplete field initialization.
 check_cxx_compiler_flag( "-Wno-missing-field-initializers" HAS_FLAG_WNO-MISSING-FIELD-INITIALIZERS )
-if ( HAS_FLAG_WNO-MISSING-FIELD-INITIALIZERS )
-    add_compile_options( $<$<COMPILE_LANGUAGE:CXX>:-Wno-missing-field-initializers> )
-else()
-    message( FATAL_ERROR "Compiler does not support -Wno-missing-field-initializers" )
+if ( !HAS_FLAG_WNO-MISSING-FIELD-INITIALIZERS )
+    message( FATAL_ERROR "Compiler does not support '-Wno-missing-field-initializers'." )
 endif()
 
-# Conform to style.
 check_cxx_compiler_flag( "-Wno-missing-braces" HAS_FLAG_WNO-MISSING-BRACES )
-if ( HAS_FLAG_WNO-MISSING-BRACES )
-    add_compile_options( $<$<COMPILE_LANGUAGE:CXX>:-Wno-missing-braces> )
-else()
-    message( FATAL_ERROR "Compiler does not support -Wno-missing-braces" )
+if ( !HAS_FLAG_WNO-MISSING-BRACES )
+    message( FATAL_ERROR "Compiler does not support '-Wno-missing-braces'." )
 endif()
 
-# Ignore comments within comments or commenting of backslash extended lines.
 check_cxx_compiler_flag( "-Wno-comment" HAS_FLAG_WNO-COMMENT )
-if ( HAS_FLAG_WNO-COMMENT )
-    add_compile_options( $<$<COMPILE_LANGUAGE:CXX>:-Wno-comment> )
-else()
-    message( FATAL_ERROR "Compiler does not support -Wno-comment" )
+if ( !HAS_FLAG_WNO-COMMENT )
+    message( FATAL_ERROR "Compiler does not support '-Wno-comment'." )
 endif()
 
-# Suppress warning for copy of implicitly generated copy constructor.
 check_cxx_compiler_flag( "-Wno-deprecated-copy" HAS_FLAG_WNO-DEPRECATED-COPY )
-if ( HAS_FLAG_WNO-DEPRECATED-COPY )
-    add_compile_options( $<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-copy> )
-else()
-    message( FATAL_ERROR "Compiler does not support -Wno-deprecated-copy" )
+if ( !HAS_FLAG_WNO-DEPRECATED-COPY )
+    message( FATAL_ERROR "Compiler does not support '-Wno-deprecated-copy'." )
 endif()
 
-# Conflict in stdlib under clang.
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    check_cxx_compiler_flag( "-Wno-mismatched-tags" HAS_FLAG_WNO-MISMATCHED-TAGS )
-    if ( HAS_FLAG_WNO-MISMATCHED-TAGS )
-        add_compile_options( $<$<COMPILE_LANGUAGE:CXX>:-Wno-mismatched-tags> )
-    else()
-        message( FATAL_ERROR "Compiler does not support -Wno-mismatched-tags" )
-    endif()
+if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
+  check_cxx_compiler_flag( "-Wno-mismatched-tags" HAS_FLAG_WNO-MISMATCHED-TAGS )
+  if ( !HAS_FLAG_WNO-MISMATCHED-TAGS )
+      message( FATAL_ERROR "Compiler does not support '-Wno-mismatched-tags'." )
+  endif()
 endif()
 
-# Implement -Dbash-completiondir and output ${bash-completiondir} and declare bash-completiondir.
-#------------------------------------------------------------------------------
-set( bash-completiondir "no" CACHE BOOL "Install bash completion support, optionally specifying the directory. This option may require elevated permissions." )
-
-# Implement -Dpkgconfigdir and output ${pkgconfigdir}.
-#------------------------------------------------------------------------------
-set( pkgconfigdir "${libdir}/pkgconfig" CACHE PATH "Path to pkgconfig directory." )
-
-# Implement -Dwith-tests and declare with-tests.
-#------------------------------------------------------------------------------
-set( with-tests "yes" CACHE BOOL "Compile with unit tests." )
-
-# Implement -Dwith-console and declare with-console.
-#------------------------------------------------------------------------------
-set( with-console "yes" CACHE BOOL "Compile console application." )
-
-# Implement -Denable-ndebug and define NDEBUG.
-#------------------------------------------------------------------------------
-set( enable-ndebug "yes" CACHE BOOL "Compile without debug assertions." )
-
-if (enable-ndebug)
-    add_definitions( -DNDEBUG )
+check_cxx_compiler_flag( "-Wno-ignored-attributes" HAS_FLAG_WNO-IGNORED-ATTRIBUTES )
+if ( !HAS_FLAG_WNO-IGNORED-ATTRIBUTES )
+    message( FATAL_ERROR "Compiler does not support '-Wno-ignored-attributes'." )
 endif()
 
-# Inherit -Denable-shared and define BOOST_ALL_DYN_LINK.
-#------------------------------------------------------------------------------
-if (BUILD_SHARED_LIBS)
-    add_definitions( -DBOOST_ALL_DYN_LINK )
+check_cxx_compiler_flag( "-Wno-long-long" HAS_FLAG_WNO-LONG-LONG )
+if ( !HAS_FLAG_WNO-LONG-LONG )
+    message( FATAL_ERROR "Compiler does not support '-Wno-long-long'." )
 endif()
 
-if (BUILD_SHARED_LIBS)
-    set( Boost_USE_STATIC_LIBS "off" )
-else()
-    set( Boost_USE_STATIC_LIBS "on" )
+if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
+  check_cxx_compiler_flag( "-fno-var-tracking-assignments" HAS_FLAG_FNO-VAR-TRACKING-ASSIGNMENTS )
+  if ( !HAS_FLAG_FNO-VAR-TRACKING-ASSIGNMENTS )
+      message( FATAL_ERROR "Compiler does not support '-fno-var-tracking-assignments'." )
+  endif()
 endif()
 
-# Find boost
 #------------------------------------------------------------------------------
-find_package( Boost 1.86.0 REQUIRED COMPONENTS
-    unit_test_framework )
-
-set( boost_unit_test_framework_LIBS "-lboost_unit_test_framework" )
-
-set( Boost_LIBRARY_DIR $<IF:$<BOOL:${enable-ndebug}>,"${Boost_LIBRARY_DIR_RELEASE}","${Boost_LIBRARY_DIR_DEBUG}">)
-
-set( boost_CPPFLAGS "-I${Boost_INCLUDE_DIR}" )
-set( boost_LDFLAGS "-L${Boost_LIBRARY_DIR}" )
-
-# Find bash-completion
+# bitcoin-server library
 #------------------------------------------------------------------------------
-if (bash-completiondir)
-    find_package( Bash-Completion 2.0.0 REQUIRED )
+add_library( bitcoin-server )
+add_library( bitcoin::server ALIAS bitcoin-server )
+
+target_compile_features( bitcoin-server
+  PUBLIC
+    cxx_std_20
+)
+
+target_compile_options( bitcoin-server
+  PRIVATE
+    -Wall
+    -Wextra
+    $<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder>
+    $<$<COMPILE_LANGUAGE:CXX>:-Wno-missing-field-initializers>
+    $<$<COMPILE_LANGUAGE:CXX>:-Wno-missing-braces>
+    $<$<COMPILE_LANGUAGE:CXX>:-Wno-comment>
+    $<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-copy>
+    $<$<CXX_COMPILER_ID:Clang>:-Wno-mismatched-tags>
+)
+
+file( GLOB_RECURSE bitcoin_server_HEADERS CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.hpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.ipp"
+)
+
+file( GLOB_RECURSE bitcoin_server_SOURCES CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../src/*.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../src/*.cpp"
+)
+
+target_sources( bitcoin-server
+  PUBLIC
+    FILE_SET HEADERS
+    BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../include"
+    FILES
+      ${bitcoin_server_HEADERS}
+  PRIVATE
+    ${bitcoin_server_SOURCES}
+)
+
+target_include_directories( bitcoin-server
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>
+    $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries( bitcoin-server
+  PUBLIC
+    bitcoin::node
+)
+
+set_target_properties(bitcoin-server
+  PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+    EXPORT_NAME server
+)
+
+#------------------------------------------------------------------------------
+# libbitcoin-server-tests tests
+#------------------------------------------------------------------------------
+if ( with-test )
+  add_executable( libbitcoin-server-tests )
+
+  enable_testing()
+
+  add_test( NAME libbitcoin-server-tests
+    COMMAND libbitcoin-server-tests
+    --run_test=*
+    --log_level=warning
+    --show_progress=no
+    --detect_memory_leak=0
+    --report_level=no
+    --build_info=yes
+  )
+
+  target_compile_options( libbitcoin-server-tests
+    PRIVATE
+      -Wall
+      -Wextra
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-missing-field-initializers>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-missing-braces>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-comment>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-copy>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-ignored-attributes>
+      $<$<CXX_COMPILER_ID:Clang>:-Wno-mismatched-tags>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-long-long>
+      $<$<CXX_COMPILER_ID:GNU>:-fno-var-tracking-assignments>
+  )
+
+  file( GLOB_RECURSE libbitcoin_server_tests_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../test/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../test/*.cpp"
+  )
+
+  target_sources( libbitcoin-server-tests
+    PRIVATE
+      ${libbitcoin_server_tests_SOURCES}
+  )
+
+  target_link_libraries( libbitcoin-server-tests
+    PRIVATE
+      Boost::unit_test_framework
+      bitcoin::server
+  )
 endif()
 
-# Find bitcoin-node
 #------------------------------------------------------------------------------
-find_package( Bitcoin-Node 4.0.0 REQUIRED )
+# bitcoin-server executable
+#------------------------------------------------------------------------------
+if ( with-console )
+  add_executable( bitcoin-server )
 
-# Define project common includes for build.
-#------------------------------------------------------------------------------
-if (BUILD_SHARED_LIBS)
-    set( bitcoin_node_FOR_BUILD_INCLUDE_DIRS ${bitcoin_node_INCLUDE_DIRS} CACHE STRING "Placeholder" )
-else()
-    set( bitcoin_node_FOR_BUILD_INCLUDE_DIRS ${bitcoin_node_STATIC_INCLUDE_DIRS} CACHE STRING "Placeholder" )
+  target_compile_options( bitcoin-server
+    PRIVATE
+      -Wall
+      -Wextra
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-missing-field-initializers>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-missing-braces>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-comment>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-deprecated-copy>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-ignored-attributes>
+      $<$<CXX_COMPILER_ID:Clang>:-Wno-mismatched-tags>
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-long-long>
+      $<$<CXX_COMPILER_ID:GNU>:-fno-var-tracking-assignments>
+  )
+
+  file( GLOB_RECURSE bitcoin_server_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../console/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../console/*.cpp"
+  )
+
+  target_sources( bitcoin-server
+    PRIVATE
+      ${bitcoin_server_SOURCES}
+  )
+
+  target_link_libraries( bitcoin-server
+    PRIVATE
+      bitcoin::server
+  )
+
+  set_target_properties(bitcoin-server
+    PROPERTIES
+      VERSION ${PROJECT_VERSION}
+      SOVERSION ${PROJECT_VERSION_MAJOR}
+      EXPORT_NAME server
+  )
 endif()
-
-# Define project common includes directories
 #------------------------------------------------------------------------------
-include_directories( SYSTEM
-    ${bitcoin_node_FOR_BUILD_INCLUDE_DIRS} )
-
-# Define project common library directories for build.
+# Installation routine.
 #------------------------------------------------------------------------------
-if (BUILD_SHARED_LIBS)
-    set( bitcoin_node_FOR_BUILD_LIBRARY_DIRS ${bitcoin_node_LIBRARY_DIRS} CACHE STRING "Placeholder" )
-else()
-    set( bitcoin_node_FOR_BUILD_LIBRARY_DIRS ${bitcoin_node_STATIC_LIBRARY_DIRS} CACHE STRING "Placeholder" )
-endif()
+include( GNUInstallDirs )
+include( CMakePackageConfigHelpers )
 
-# Define project common library directories
-#------------------------------------------------------------------------------
-link_directories(
-    ${bitcoin_node_FOR_BUILD_LIBRARY_DIRS} )
+install( TARGETS bitcoin-server
+  EXPORT bitcoin-server-targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  FILE_SET HEADERS
+)
 
-# Define project common linker flags.
-#------------------------------------------------------------------------------
-check_linker_flag(CXX "-no_fixup_chains" "no_fixup_chains_FOUND")
+install( EXPORT bitcoin-server-targets
+  NAMESPACE bitcoin::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bitcoin-server
+  FILE bitcoin-server-targets.cmake
+)
 
-if (no_fixup_chains_FOUND)
-    add_link_options("-no_fixup_chains")
-endif()
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/bitcoin-server-config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/bitcoin-server-config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bitcoin-server
+)
 
-check_linker_flag(CXX "-fstack-protector" "fstack_protector_FOUND")
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/bitcoin-server-config-version.cmake"
+  VERSION ${PACKAGE_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
 
-if (fstack_protector_FOUND)
-    add_link_options("-fstack-protector")
-endif()
-
-check_linker_flag(CXX "-fstack-protector-all" "fstack_protector_all_FOUND")
-
-if (fstack_protector_all_FOUND)
-    add_link_options("-fstack-protector-all")
-endif()
-
-
-# Define common library usage for build.
-#------------------------------------------------------------------------------
-if (BUILD_SHARED_LIBS)
-    set( bitcoin_node_FOR_BUILD_LIBRARIES ${bitcoin_node_LIBRARIES} CACHE STRING "Placeholder" )
-else()
-    set( bitcoin_node_FOR_BUILD_LIBRARIES ${bitcoin_node_STATIC_LIBRARIES} CACHE STRING "Placeholder" )
-endif()
-
-# Define project common libraries.
-#------------------------------------------------------------------------------
-link_libraries(
-    ${bitcoin_node_FOR_BUILD_LIBRARIES} )
-
-add_definitions(
-    -DSYSCONFDIR=\"${sysconfdir}\" )
-
-# Define ${CANONICAL_LIB_NAME} project.
-#------------------------------------------------------------------------------
-add_library( ${CANONICAL_LIB_NAME}
-    "../../src/configuration.cpp"
-    "../../src/error.cpp"
-    "../../src/estimator.cpp"
-    "../../src/parser.cpp"
-    "../../src/server_node.cpp"
-    "../../src/settings.cpp"
-    "../../src/parsers/bitcoind_query.cpp"
-    "../../src/parsers/bitcoind_target.cpp"
-    "../../src/parsers/native_query.cpp"
-    "../../src/parsers/native_target.cpp"
-    "../../src/protocols/protocol_bitcoind_rest.cpp"
-    "../../src/protocols/protocol_bitcoind_rpc.cpp"
-    "../../src/protocols/protocol_electrum.cpp"
-    "../../src/protocols/protocol_electrum_version.cpp"
-    "../../src/protocols/protocol_html.cpp"
-    "../../src/protocols/protocol_http.cpp"
-    "../../src/protocols/protocol_native.cpp"
-    "../../src/protocols/protocol_stratum_v1.cpp" )
-
-# ${CANONICAL_LIB_NAME} project specific include directory normalization for build.
-#------------------------------------------------------------------------------
-if (BUILD_SHARED_LIBS)
-    set( bitcoin_node_FOR_BUILD_INCLUDE_DIRS ${bitcoin_node_INCLUDE_DIRS} CACHE STRING "Placeholder" )
-else()
-    set( bitcoin_node_FOR_BUILD_INCLUDE_DIRS ${bitcoin_node_STATIC_INCLUDE_DIRS} CACHE STRING "Placeholder" )
-endif()
-
-# ${CANONICAL_LIB_NAME} project specific include directories.
-#------------------------------------------------------------------------------
-target_include_directories( ${CANONICAL_LIB_NAME} PRIVATE
-    "../../include"
-    ${bitcoin_node_FOR_BUILD_INCLUDE_DIRS} )
-
-target_include_directories( ${CANONICAL_LIB_NAME} PUBLIC
-"../../include" )
-
-# ${CANONICAL_LIB_NAME} project specific libraries noramalization for build.
-#------------------------------------------------------------------------------
-if (BUILD_SHARED_LIBS)
-    set( bitcoin_node_FOR_BUILD_LIBRARIES ${bitcoin_node_LIBRARIES} CACHE STRING "Placeholder" )
-else()
-    set( bitcoin_node_FOR_BUILD_LIBRARIES ${bitcoin_node_STATIC_LIBRARIES} CACHE STRING "Placeholder" )
-endif()
-
-# ${CANONICAL_LIB_NAME} project specific libraries/linker flags.
-#------------------------------------------------------------------------------
-target_link_libraries( ${CANONICAL_LIB_NAME}
-    ${bitcoin_node_FOR_BUILD_LIBRARIES} )
-
-# Define libbitcoin-server-test project.
-#------------------------------------------------------------------------------
-if (with-tests)
-    add_executable( libbitcoin-server-test
-        "../../test/configuration.cpp"
-        "../../test/error.cpp"
-        "../../test/estimator.cpp"
-        "../../test/main.cpp"
-        "../../test/settings.cpp"
-        "../../test/test.cpp"
-        "../../test/test.hpp"
-        "../../test/endpoints/README.md"
-        "../../test/endpoints/conftest.py"
-        "../../test/endpoints/electrum.cpp"
-        "../../test/endpoints/test_bitcoind_rpc.py"
-        "../../test/endpoints/test_electrum.py"
-        "../../test/endpoints/test_native.py"
-        "../../test/endpoints/utils.py"
-        "../../test/parsers/bitcoind_query.cpp"
-        "../../test/parsers/bitcoind_target.cpp"
-        "../../test/parsers/native_query.cpp"
-        "../../test/parsers/native_target.cpp" )
-
-    add_test( NAME libbitcoin-server-test COMMAND libbitcoin-server-test
-            --run_test=*
-            --log_level=warning
-            --show_progress=no
-            --detect_memory_leak=0
-            --report_level=no
-            --build_info=yes )
-
-#     libbitcoin-server-test project specific include directories.
-#------------------------------------------------------------------------------
-    target_include_directories( libbitcoin-server-test PRIVATE
-        "../../include" )
-
-#     libbitcoin-server-test project specific libraries/linker flags.
-#------------------------------------------------------------------------------
-    target_link_libraries( libbitcoin-server-test
-        ${CANONICAL_LIB_NAME}
-        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/bitcoin-server-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/bitcoin-server-config-version.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bitcoin-server
+)
+if ( with-console )
+  install( TARGETS bitcoin-server
+    EXPORT bitcoin-server-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILE_SET HEADERS
+  )
 
 endif()
-
-# Define bs project.
-#------------------------------------------------------------------------------
-if (with-console)
-    add_executable( bs
-        "../../console/executor.cpp"
-        "../../console/executor.hpp"
-        "../../console/executor_commands.cpp"
-        "../../console/executor_daemon.cpp"
-        "../../console/executor_dumps.cpp"
-        "../../console/executor_events.cpp"
-        "../../console/executor_logging.cpp"
-        "../../console/executor_options.cpp"
-        "../../console/executor_runner.cpp"
-        "../../console/executor_scans.cpp"
-        "../../console/executor_signals.cpp"
-        "../../console/executor_store.cpp"
-        "../../console/executor_test_reader.cpp"
-        "../../console/executor_test_writer.cpp"
-        "../../console/executor_window.cpp"
-        "../../console/localize.hpp"
-        "../../console/main.cpp"
-        "../../console/stack_trace.cpp"
-        "../../console/stack_trace.hpp"
-        "../../console/embedded/admin_css.cpp"
-        "../../console/embedded/admin_font.cpp"
-        "../../console/embedded/admin_html.cpp"
-        "../../console/embedded/admin_icon.cpp"
-        "../../console/embedded/amin_ecma.cpp"
-        "../../console/embedded/embedded.hpp"
-        "../../console/embedded/native_css.cpp"
-        "../../console/embedded/native_ecma.cpp"
-        "../../console/embedded/native_font.cpp"
-        "../../console/embedded/native_html.cpp"
-        "../../console/embedded/native_icon.cpp" )
-
-#     bs project specific include directories.
-#------------------------------------------------------------------------------
-    target_include_directories( bs PRIVATE
-        "../../include" )
-
-#     bs project specific libraries/linker flags.
-#------------------------------------------------------------------------------
-    target_link_libraries( bs
-        ${CANONICAL_LIB_NAME} )
-
-endif()
-
-# Manage pkgconfig installation.
-#------------------------------------------------------------------------------
-configure_file(
-  "../../libbitcoin-server.pc.in"
-  "libbitcoin-server.pc" @ONLY )
-
-install( FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/libbitcoin-server.pc"
-    DESTINATION "${pkgconfigdir}" )
-
-# Manage installation of docs.
-#------------------------------------------------------------------------------
-install( FILES
-    "../../AUTHORS"
-    "../../COPYING"
-    "../../ChangeLog"
-    "../../INSTALL"
-    "../../NEWS"
-    "../../README"
-    DESTINATION share/doc/libbitcoin-server )
-
-# Manage ${CANONICAL_LIB_NAME} installation.
-#------------------------------------------------------------------------------
-install( TARGETS ${CANONICAL_LIB_NAME}
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    PUBLIC_HEADER DESTINATION include )
-
-# Manage bs installation.
-#------------------------------------------------------------------------------
-if (with-console)
-    install( TARGETS bs
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        PUBLIC_HEADER DESTINATION include )
-endif()
-
-# Manage include installation.
-#------------------------------------------------------------------------------
-install( DIRECTORY "../../include/bitcoin"
-    DESTINATION include )
-
-# Manage data installation for bash_completion prefixed product.
-#------------------------------------------------------------------------------
-if (bash-completiondir)
-    install( FILES
-        "../../data/bs"
-        DESTINATION etc/libbitcoin )
-endif()
-
-# Manage data installation for sysconf prefixed product.
-#------------------------------------------------------------------------------
-if (with-console)
-    install( FILES
-        "../../data/bs.cfg"
-        DESTINATION etc/libbitcoin )
-endif()
-
