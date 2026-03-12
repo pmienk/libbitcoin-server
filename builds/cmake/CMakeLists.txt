@@ -223,12 +223,12 @@ if ( with-test )
 endif()
 
 #------------------------------------------------------------------------------
-# bitcoin-server executable
+# bs executable
 #------------------------------------------------------------------------------
 if ( with-console )
-  add_executable( bitcoin-server )
+  add_executable( bs )
 
-  target_compile_options( bitcoin-server
+  target_compile_options( bs
     PRIVATE
       -Wall
       -Wextra
@@ -243,26 +243,26 @@ if ( with-console )
       $<$<CXX_COMPILER_ID:GNU>:-fno-var-tracking-assignments>
   )
 
-  file( GLOB_RECURSE bitcoin_server_SOURCES CONFIGURE_DEPENDS
+  file( GLOB_RECURSE bs_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/../../console/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../console/*.cpp"
   )
 
-  target_sources( bitcoin-server
+  target_sources( bs
     PRIVATE
-      ${bitcoin_server_SOURCES}
+      ${bs_SOURCES}
   )
 
-  target_link_libraries( bitcoin-server
+  target_link_libraries( bs
     PRIVATE
       bitcoin::server
   )
 
-  set_target_properties(bitcoin-server
+  set_target_properties(bs
     PROPERTIES
       VERSION ${PROJECT_VERSION}
       SOVERSION ${PROJECT_VERSION_MAJOR}
-      EXPORT_NAME server
+      EXPORT_NAME bs
   )
 endif()
 #------------------------------------------------------------------------------
@@ -305,8 +305,8 @@ install(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bitcoin-server
 )
 if ( with-console )
-  install( TARGETS bitcoin-server
-    EXPORT bitcoin-server-targets
+  install( TARGETS bs
+    EXPORT bs-targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
