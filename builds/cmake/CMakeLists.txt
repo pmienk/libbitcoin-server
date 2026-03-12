@@ -30,14 +30,14 @@ option( with-console "Build console." ON )
 #------------------------------------------------------------------------------
 
 if ( BUILD_SHARED_LIBS )
-  set( bitcoin-node_USE_STATIC_LIBS "OFF" )
+  set( libbitcoin-node_USE_STATIC_LIBS "OFF" )
   set( Boost_USE_STATIC_LIBS "OFF" )
 else()
-  set( bitcoin-node_USE_STATIC_LIBS "ON" )
+  set( libbitcoin-node_USE_STATIC_LIBS "ON" )
   set( Boost_USE_STATIC_LIBS "ON" )
 endif()
 
-find_package( bitcoin-node 4.0.0 REQUIRED )
+find_package( libbitcoin-node 4.0.0 REQUIRED )
 
 find_package( Boost 1.86.0 REQUIRED
   COMPONENTS
@@ -111,17 +111,17 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
 endif()
 
 #------------------------------------------------------------------------------
-# bitcoin-server library
+# libbitcoin-server library
 #------------------------------------------------------------------------------
-add_library( bitcoin-server )
-add_library( bitcoin::server ALIAS bitcoin-server )
+add_library( libbitcoin-server )
+add_library( bitcoin::server ALIAS libbitcoin-server )
 
-target_compile_features( bitcoin-server
+target_compile_features( libbitcoin-server
   PUBLIC
     cxx_std_20
 )
 
-target_compile_options( bitcoin-server
+target_compile_options( libbitcoin-server
   PRIVATE
     -Wall
     -Wextra
@@ -133,43 +133,44 @@ target_compile_options( bitcoin-server
     $<$<CXX_COMPILER_ID:Clang>:-Wno-mismatched-tags>
 )
 
-file( GLOB_RECURSE bitcoin_server_HEADERS CONFIGURE_DEPENDS
+file( GLOB_RECURSE libbitcoin_server_HEADERS CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.hpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/../../include/*.ipp"
 )
 
-file( GLOB_RECURSE bitcoin_server_SOURCES CONFIGURE_DEPENDS
+file( GLOB_RECURSE libbitcoin_server_SOURCES CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/../../src/*.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/../../src/*.cpp"
 )
 
-target_sources( bitcoin-server
+target_sources( libbitcoin-server
   PUBLIC
     FILE_SET HEADERS
     BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../include"
     FILES
-      ${bitcoin_server_HEADERS}
+      ${libbitcoin_server_HEADERS}
   PRIVATE
-    ${bitcoin_server_SOURCES}
+    ${libbitcoin_server_SOURCES}
 )
 
-target_include_directories( bitcoin-server
+target_include_directories( libbitcoin-server
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>
     $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries( bitcoin-server
+target_link_libraries( libbitcoin-server
   PUBLIC
     bitcoin::node
 )
 
-set_target_properties(bitcoin-server
+set_target_properties( libbitcoin-server
   PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
     EXPORT_NAME server
+    OUTPUT_NAME bitcoin-server
 )
 
 #------------------------------------------------------------------------------
@@ -220,15 +221,21 @@ if ( with-test )
       Boost::unit_test_framework
       bitcoin::server
   )
+
+  set_target_properties( libbitcoin-server-tests
+    PROPERTIES
+      VERSION ${PROJECT_VERSION}
+      SOVERSION ${PROJECT_VERSION_MAJOR}
+  )
 endif()
 
 #------------------------------------------------------------------------------
-# bs executable
+# bitcoin-server executable
 #------------------------------------------------------------------------------
 if ( with-console )
-  add_executable( bs )
+  add_executable( bitcoin-server )
 
-  target_compile_options( bs
+  target_compile_options( bitcoin-server
     PRIVATE
       -Wall
       -Wextra
@@ -243,26 +250,27 @@ if ( with-console )
       $<$<CXX_COMPILER_ID:GNU>:-fno-var-tracking-assignments>
   )
 
-  file( GLOB_RECURSE bs_SOURCES CONFIGURE_DEPENDS
+  file( GLOB_RECURSE bitcoin_server_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/../../console/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../console/*.cpp"
   )
 
-  target_sources( bs
+  target_sources( bitcoin-server
     PRIVATE
-      ${bs_SOURCES}
+      ${bitcoin_server_SOURCES}
   )
 
-  target_link_libraries( bs
+  target_link_libraries( bitcoin-server
     PRIVATE
       bitcoin::server
   )
 
-  set_target_properties(bs
+  set_target_properties( bitcoin-server
     PROPERTIES
       VERSION ${PROJECT_VERSION}
       SOVERSION ${PROJECT_VERSION_MAJOR}
-      EXPORT_NAME bs
+      EXPORT_NAME server
+      OUTPUT_NAME bs
   )
 endif()
 #------------------------------------------------------------------------------
@@ -271,8 +279,8 @@ endif()
 include( GNUInstallDirs )
 include( CMakePackageConfigHelpers )
 
-install( TARGETS bitcoin-server
-  EXPORT bitcoin-server-targets
+install( TARGETS libbitcoin-server
+  EXPORT libbitcoin-server-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -280,33 +288,33 @@ install( TARGETS bitcoin-server
   FILE_SET HEADERS
 )
 
-install( EXPORT bitcoin-server-targets
+install( EXPORT libbitcoin-server-targets
   NAMESPACE bitcoin::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bitcoin-server
-  FILE bitcoin-server-targets.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libbitcoin-server
+  FILE libbitcoin-server-targets.cmake
 )
 
 configure_package_config_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/bitcoin-server-config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/bitcoin-server-config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bitcoin-server
+  ${CMAKE_CURRENT_SOURCE_DIR}/libbitcoin-server-config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/libbitcoin-server-config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libbitcoin-server
 )
 
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/bitcoin-server-config-version.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/libbitcoin-server-config-version.cmake"
   VERSION ${PACKAGE_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
 
 install(
   FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/bitcoin-server-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/bitcoin-server-config-version.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bitcoin-server
+    ${CMAKE_CURRENT_BINARY_DIR}/libbitcoin-server-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/libbitcoin-server-config-version.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libbitcoin-server
 )
 if ( with-console )
-  install( TARGETS bs
-    EXPORT bs-targets
+  install( TARGETS bitcoin-server
+    EXPORT bitcoin-server-targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
