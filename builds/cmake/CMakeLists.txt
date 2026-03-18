@@ -204,6 +204,11 @@ if ( with-test )
     --build_info=yes
   )
 
+  target_compile_features( libbitcoin-server-tests
+    PUBLIC
+      cxx_std_20
+  )
+
   target_compile_options( libbitcoin-server-tests
     PRIVATE
       -Wall
@@ -248,6 +253,11 @@ endif()
 #------------------------------------------------------------------------------
 if ( with-console )
   add_executable( bitcoin-server )
+
+  target_compile_features( bitcoin-server
+    PUBLIC
+      cxx_std_20
+  )
 
   target_compile_options( bitcoin-server
     PRIVATE
