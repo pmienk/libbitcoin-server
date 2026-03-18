@@ -417,14 +417,6 @@ set_pkgconfigdir()
     with_pkgconfigdir="-Dpkgconfigdir=$PREFIX_PKG_CONFIG_DIR"
 }
 
-set_with_icu_prefix()
-{
-    if [[ $BUILD_ICU ]]; then
-        with_icu="ICU_ROOT=${PREFIX}"
-        export ICU_ROOT="$PREFIX"
-    fi
-}
-
 set_with_boost_prefix()
 {
     if [[ $BUILD_BOOST ]]; then
@@ -875,7 +867,6 @@ normalize_static_and_shared_options "$@"
 remove_build_options
 set_prefix
 set_pkgconfigdir
-set_with_icu_prefix
 set_with_boost_prefix
 
 remove_install_options
