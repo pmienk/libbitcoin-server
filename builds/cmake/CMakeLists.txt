@@ -22,7 +22,7 @@ endif()
 #------------------------------------------------------------------------------
 # Project options.
 #------------------------------------------------------------------------------
-option( with-test "Build test." ON )
+option( with-tests "Build tests." ON )
 option( with-console "Build console." ON )
 
 #------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ set_target_properties( libbitcoin-server
 #------------------------------------------------------------------------------
 # libbitcoin-server-tests tests
 #------------------------------------------------------------------------------
-if ( with-test )
+if ( with-tests )
   add_executable( libbitcoin-server-tests )
 
   enable_testing()
