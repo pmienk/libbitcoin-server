@@ -261,6 +261,7 @@ jobs:
         run: |
           ls ${{ env.LIBBITCOIN_SRC_PATH }}prefix/lib/pkgconfig/
           cat ${{ env.LIBBITCOIN_SRC_PATH }}prefix/lib/pkgconfig/*.pc
+
   cmake:
 
     strategy:
@@ -441,6 +442,7 @@ jobs:
           --build-obj-dir="obj"
           --build-obj-dir-relative
           --build-use-local-src
+          ${{ (matrix.assert == 'ndebug') && '--build-config=release' || '--build-config=debug' }}
           ${{ matrix.boost }}
           ${{ matrix.secp256k1 }}
           ${{ matrix.options }}
