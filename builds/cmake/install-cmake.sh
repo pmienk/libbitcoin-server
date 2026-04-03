@@ -15,8 +15,10 @@
 # --build-obj-dir-relative    Use build-obj-dir as relative to project sources.
 # --build-config=<mode>       Specifies the build configuration.
 #                               Valid values: { debug, release }
+#                               Toolchain default behavior will occur if no value specified.
 # --build-link=<mode>         Specifies link mode.
 #                               Valid values: { dynamic, static }
+#                               Toolchain default behavior will occur if no value specified.
 # --build-full-repositories   Sync full github repositories.
 #                               Default clones depth 1, single branch
 # --build-parallel=<int>      Number of jobs to run simultaneously.
@@ -374,6 +376,7 @@ main()
         fi
     done
     CONFIGURE_OPTIONS=( "${REMAP[@]}" )
+    unset REMAP
 
     # handle help
     if [[ "${DISPLAY_HELP}" == "yes" ]]; then
@@ -573,8 +576,10 @@ display_help()
     display_message "--build-obj-dir-relative    Use build-obj-dir as relative to project sources."
     display_message "--build-config=<mode>       Specifies the build configuration."
     display_message "                              Valid values: { debug, release }"
+    display_message "                              Toolchain default behavior will occur if no value specified."
     display_message "--build-link=<mode>         Specifies link mode."
     display_message "                              Valid values: { dynamic, static }"
+    display_message "                              Toolchain default behavior will occur if no value specified."
     display_message "--build-full-repositories   Sync full github repositories."
     display_message "                              Default clones depth 1, single branch"
     display_message "--build-parallel=<int>      Number of jobs to run simultaneously."
