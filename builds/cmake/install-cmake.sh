@@ -56,35 +56,35 @@ if [[ -z ${libbitcoin_system_OWNER} ]]; then
     libbitcoin_system_OWNER="pmienk"
 fi
 if [[ -z ${libbitcoin_system_TAG} ]]; then
-    libbitcoin_system_TAG="master"
+    libbitcoin_system_TAG="installer-rewrite"
 fi
 
 if [[ -z ${libbitcoin_database_OWNER} ]]; then
     libbitcoin_database_OWNER="pmienk"
 fi
 if [[ -z ${libbitcoin_database_TAG} ]]; then
-    libbitcoin_database_TAG="master"
+    libbitcoin_database_TAG="installer-rewrite"
 fi
 
 if [[ -z ${libbitcoin_network_OWNER} ]]; then
     libbitcoin_network_OWNER="pmienk"
 fi
 if [[ -z ${libbitcoin_network_TAG} ]]; then
-    libbitcoin_network_TAG="master"
+    libbitcoin_network_TAG="installer-rewrite"
 fi
 
 if [[ -z ${libbitcoin_node_OWNER} ]]; then
     libbitcoin_node_OWNER="pmienk"
 fi
 if [[ -z ${libbitcoin_node_TAG} ]]; then
-    libbitcoin_node_TAG="master"
+    libbitcoin_node_TAG="installer-rewrite"
 fi
 
 if [[ -z ${libbitcoin_server_OWNER} ]]; then
     libbitcoin_server_OWNER="pmienk"
 fi
 if [[ -z ${libbitcoin_server_TAG} ]]; then
-    libbitcoin_server_TAG="master"
+    libbitcoin_server_TAG="installer-rewrite"
 fi
 
 main()
@@ -118,12 +118,8 @@ main()
     CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/--build-*/}")
     CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/--prefix=*/}")
     CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/--verbose/}")
-    CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/-DCMAKE_PREFIX_PATH=*/}")
-    CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/-DCMAKE_INSTALL_PREFIX=*/}")
-    CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/-DCMAKE_INCLUDE_PATH=*/}")
-    CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/-DCMAKE_LIBRARY_PATH=*/}")
-    display_message_verbose "CONFIGURE_OPTIONS INITIAL: ${CONFIGURE_OPTIONS_ORIGINAL[*]}"
-    display_message_verbose "CONFIGURE_OPTIONS SANITIZED: ${CONFIGURE_OPTIONS[*]}"
+    display_message_verbose "*** ARGUMENTS: ${CONFIGURE_OPTIONS_ORIGINAL[*]}"
+    display_message_verbose "*** SANITIZED: ${CONFIGURE_OPTIONS[*]}"
 
     if [[ "${DISPLAY_VERBOSE}" == "yes" ]]; then
         display_build_variables
@@ -183,8 +179,7 @@ main()
 
     # --build-config
     if [[ -z "${BUILD_CONFIG}" ]]; then
-        BUILD_CONFIG="release"
-        display_message_verbose "No build-config specified, defaulting to '${BUILD_CONFIG}'."
+        display_message_verbose "No build-config specified."
     elif [[ "${BUILD_CONFIG}" != "debug" ]] && [[ "${BUILD_CONFIG}" != "release" ]]; then
         display_error "Provided build-config '${BUILD_CONFIG}' not a valid value."
         display_help
@@ -195,8 +190,7 @@ main()
 
     # --build-link
     if [[ -z "${BUILD_LINK}" ]]; then
-        BUILD_LINK="static"
-        display_message_verbose "No build-link specified, defaulting to '${BUILD_LINK}'."
+        display_message_verbose "No build-link specified."
     elif [[ "${BUILD_LINK}" != "dynamic" ]] && [[ "${BUILD_LINK}" != "static" ]]; then
         display_error "Provided build-link ${BUILD_LINK}' not a valid value."
         display_help
@@ -223,46 +217,25 @@ main()
         fi
     fi
 
-    if [[ -n "${CMAKE_PREFIX_PATH}" ]]; then
-        if [[ -n "${PREFIX}" ]]; then
-            display_error "Both PREFIX and CMAKE_PREFIX_PATH have been defined, please use --prefix exclusively."
-            display_help
-            exit 1
-        fi
-
-        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}" )
+    if [[ -n "${PREFIX}" ]] && [[ -n "${CMAKE_INSTALL_PREFIX}" ]]; then
+        display_error "Both PREFIX and CMAKE_INSTALL_PREFIX have been defined differently."
+        display_help
+        exit 1
     elif [[ -n "${PREFIX}" ]]; then
-        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_PREFIX_PATH=${PREFIX}" )
-    fi
-
-    if [[ -n "${CMAKE_INSTALL_PREFIX}" ]]; then
-        if [[ -n "${PREFIX}" ]]; then
-            CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_INSTALL_PREFIX=${PREFIX}:${CMAKE_PREFIX_PATH}" )
-        else
-            CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}" )
-        fi
-    elif [[ -n "${PREFIX}" ]]; then
+        CMAKE_INSTALL_PREFIX="${PREFIX}"
+        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]/-DCMAKE_INSTALL_PREFIX=*/}" )
         CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_INSTALL_PREFIX=${PREFIX}" )
     fi
 
-    if [[ -n "${CMAKE_INCLUDE_PATH}" ]]; then
-        if [[ -n "${PREFIX}" ]]; then
-            CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_INCLUDE_PATH=${PREFIX}/include:${CMAKE_INCLUDE_PATH}" )
-        else
-            CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_INCLUDE_PATH=${CMAKE_INCLUDE_PATH}" )
-        fi
+    if [[ -n "${PREFIX}" ]] && [[ -n "${CMAKE_PREFIX_PATH}" ]] &&
+       [[ "${PREFIX}" != "${CMAKE_PREFIX_PATH}" ]]; then
+        CMAKE_PREFIX_PATH="${PREFIX}:${CMAKE_PREFIX_PATH}"
+        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]/-DCMAKE_PREFIX_PATH=*/}" )
+        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}" )
     elif [[ -n "${PREFIX}" ]]; then
-        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_INCLUDE_PATH=${PREFIX}/include" )
-    fi
-
-    if [[ -n "${CMAKE_LIBRARY_PATH}" ]]; then
-        if [[ -n "${PREFIX}" ]]; then
-            CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_LIBRARY_PATH=${PREFIX}/lib:${CMAKE_LIBRARY_PATH}" )
-        else
-            CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_LIBRARY_PATH=${CMAKE_LIBRARY_PATH}" )
-        fi
-    elif [[ -n "${PREFIX}" ]]; then
-        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_LIBRARY_PATH=${PREFIX}/lib" )
+        CMAKE_INSTALL_PREFIX="${PREFIX}"
+        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]/-DCMAKE_PREFIX_PATH=*/}" )
+        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_PREFIX_PATH=${PREFIX}" )
     fi
 
     if [[ -n "${PREFIX}" ]]; then
@@ -365,10 +338,10 @@ main()
     fi
 
     # Specify cmake build
-    if [[ "${BUILD_CONFIG}" == "release" ]]; then
-        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_BUILD_TYPE=Release" )
-    elif [[ "${BUILD_CONFIG}" == "debug" ]]; then
+    if [[ "${BUILD_CONFIG}" == "debug" ]]; then
         CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_BUILD_TYPE=Debug" )
+    elif [[ "${BUILD_CONFIG}" == "release" ]]; then
+        CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "-DCMAKE_BUILD_TYPE=Release" )
     fi
 
     # translate BUILD_LINK to appropriate arguments
@@ -638,14 +611,14 @@ create_directory()
 
     if [[ -d "${DIRECTORY}" ]]; then
         if [[ ${MODE} == "-f" ]]; then
-            display_message "'${DIRECTORY}' reinitializing..."
+            display_message "Reinitializing '${DIRECTORY}'..."
             rm -rf "${DIRECTORY}"
             mkdir -p "${DIRECTORY}"
         else
-            display_message "'${DIRECTORY}' exists, reusing..."
+            display_message "Reusing existing '${DIRECTORY}'..."
         fi
     else
-        display_message "'${DIRECTORY}' initializing..."
+        display_message "Initializing '${DIRECTORY}'..."
         mkdir -p "${DIRECTORY}"
     fi
 }
@@ -657,24 +630,22 @@ create_directory_force()
 
 pop_directory()
 {
-    display_message_verbose "pop_directory starting location '$(pwd)'"
-    display_message_verbose "popd > /dev/null"
+    display_message_verbose "*** move  pre: '$(pwd)'"
     popd >/dev/null
-    display_message_verbose "  resulting location '$(pwd)'"
+    display_message_verbose "*** move post: '$(pwd)'"
 }
 
 push_directory()
 {
-    display_message_verbose
+    display_message_verbose "*** move  pre: '$(pwd)'"
     local DIRECTORY="$1"
-    display_message_verbose "push_directory starting location '$(pwd)'"
-    display_message_verbose "pushd '${DIRECTORY}' > /dev/null"
     pushd "${DIRECTORY}" >/dev/null
-    display_message_verbose "  resulting location '$(pwd)'"
+    display_message_verbose "*** move post: '$(pwd)'"
 }
 
 remove_directory_force()
 {
+    display_message_verbose "*** removing: '$@'"
     rm -rf "$@"
 }
 

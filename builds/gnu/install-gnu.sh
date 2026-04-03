@@ -56,35 +56,35 @@ if [[ -z ${libbitcoin_system_OWNER} ]]; then
     libbitcoin_system_OWNER="pmienk"
 fi
 if [[ -z ${libbitcoin_system_TAG} ]]; then
-    libbitcoin_system_TAG="master"
+    libbitcoin_system_TAG="installer-rewrite"
 fi
 
 if [[ -z ${libbitcoin_database_OWNER} ]]; then
     libbitcoin_database_OWNER="pmienk"
 fi
 if [[ -z ${libbitcoin_database_TAG} ]]; then
-    libbitcoin_database_TAG="master"
+    libbitcoin_database_TAG="installer-rewrite"
 fi
 
 if [[ -z ${libbitcoin_network_OWNER} ]]; then
     libbitcoin_network_OWNER="pmienk"
 fi
 if [[ -z ${libbitcoin_network_TAG} ]]; then
-    libbitcoin_network_TAG="master"
+    libbitcoin_network_TAG="installer-rewrite"
 fi
 
 if [[ -z ${libbitcoin_node_OWNER} ]]; then
     libbitcoin_node_OWNER="pmienk"
 fi
 if [[ -z ${libbitcoin_node_TAG} ]]; then
-    libbitcoin_node_TAG="master"
+    libbitcoin_node_TAG="installer-rewrite"
 fi
 
 if [[ -z ${libbitcoin_server_OWNER} ]]; then
     libbitcoin_server_OWNER="pmienk"
 fi
 if [[ -z ${libbitcoin_server_TAG} ]]; then
-    libbitcoin_server_TAG="master"
+    libbitcoin_server_TAG="installer-rewrite"
 fi
 
 main()
@@ -114,8 +114,8 @@ main()
     CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/--build-*/}")
     CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/--prefix=*/}")
     CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/--verbose/}")
-    display_message_verbose "CONFIGURE_OPTIONS INITIAL: ${CONFIGURE_OPTIONS_ORIGINAL[*]}"
-    display_message_verbose "CONFIGURE_OPTIONS SANITIZED: ${CONFIGURE_OPTIONS[*]}"
+    display_message_verbose "*** ARGUMENTS: ${CONFIGURE_OPTIONS_ORIGINAL[*]}"
+    display_message_verbose "*** SANITIZED: ${CONFIGURE_OPTIONS[*]}"
 
     if [[ "${DISPLAY_VERBOSE}" == "yes" ]]; then
         display_build_variables
@@ -175,8 +175,7 @@ main()
 
     # --build-config
     if [[ -z "${BUILD_CONFIG}" ]]; then
-        BUILD_CONFIG="release"
-        display_message_verbose "No build-config specified, defaulting to '${BUILD_CONFIG}'."
+        display_message_verbose "No build-config specified."
     elif [[ "${BUILD_CONFIG}" != "debug" ]] && [[ "${BUILD_CONFIG}" != "release" ]]; then
         display_error "Provided build-config '${BUILD_CONFIG}' not a valid value."
         display_help
@@ -187,8 +186,7 @@ main()
 
     # --build-link
     if [[ -z "${BUILD_LINK}" ]]; then
-        BUILD_LINK="static"
-        display_message_verbose "No build-link specified, defaulting to '${BUILD_LINK}'."
+        display_message_verbose "No build-link specified."
     elif [[ "${BUILD_LINK}" != "dynamic" ]] && [[ "${BUILD_LINK}" != "static" ]]; then
         display_error "Provided build-link ${BUILD_LINK}' not a valid value."
         display_help
@@ -318,8 +316,10 @@ main()
         fi
     fi
 
-    # Specify --enable-ndebug for gnu toolchain on release
-    if [[ "${BUILD_CONFIG}" == "release" ]]; then
+    # Specify or remove --enable-ndebug for gnu toolchain on release
+    if [[ "${BUILD_CONFIG}" == "debug" ]]; then
+        CONFIGURE_OPTIONS=("${CONFIGURE_OPTIONS[@]/--enable-ndebug/}")
+    elif [[ "${BUILD_CONFIG}" == "release" ]]; then
         CONFIGURE_OPTIONS=( "${CONFIGURE_OPTIONS[@]}" "--enable-ndebug" )
     fi
 
@@ -598,14 +598,14 @@ create_directory()
 
     if [[ -d "${DIRECTORY}" ]]; then
         if [[ ${MODE} == "-f" ]]; then
-            display_message "'${DIRECTORY}' reinitializing..."
+            display_message "Reinitializing '${DIRECTORY}'..."
             rm -rf "${DIRECTORY}"
             mkdir -p "${DIRECTORY}"
         else
-            display_message "'${DIRECTORY}' exists, reusing..."
+            display_message "Reusing existing '${DIRECTORY}'..."
         fi
     else
-        display_message "'${DIRECTORY}' initializing..."
+        display_message "Initializing '${DIRECTORY}'..."
         mkdir -p "${DIRECTORY}"
     fi
 }
@@ -617,24 +617,22 @@ create_directory_force()
 
 pop_directory()
 {
-    display_message_verbose "pop_directory starting location '$(pwd)'"
-    display_message_verbose "popd > /dev/null"
+    display_message_verbose "*** move  pre: '$(pwd)'"
     popd >/dev/null
-    display_message_verbose "  resulting location '$(pwd)'"
+    display_message_verbose "*** move post: '$(pwd)'"
 }
 
 push_directory()
 {
-    display_message_verbose
+    display_message_verbose "*** move  pre: '$(pwd)'"
     local DIRECTORY="$1"
-    display_message_verbose "push_directory starting location '$(pwd)'"
-    display_message_verbose "pushd '${DIRECTORY}' > /dev/null"
     pushd "${DIRECTORY}" >/dev/null
-    display_message_verbose "  resulting location '$(pwd)'"
+    display_message_verbose "*** move post: '$(pwd)'"
 }
 
 remove_directory_force()
 {
+    display_message_verbose "*** removing: '$@'"
     rm -rf "$@"
 }
 
