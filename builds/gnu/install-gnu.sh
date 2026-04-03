@@ -349,13 +349,13 @@ main()
         with_boost="--with-boost=${PREFIX}"
     fi
 
-    CONFIGURE_OPTIONS=(
-        $(
-        for i in "${CONFIGURE_OPTIONS[@]}"; do
-            [[ -n "$i" ]] && echo "$i;
-        done
-        )
-    )
+    REMAP=()
+    for argument in "${CONFIGURE_OPTIONS[@]}"; do
+        if [[ -n "${argument}" ]]; then
+            REMAP+=( "${argument}" )
+        fi
+    done
+    CONFIGURE_OPTIONS=( "${REMAP[@]}" )
 
     # handle help
     if [[ "${DISPLAY_HELP}" == "yes" ]]; then
@@ -657,7 +657,7 @@ display_configure_options()
 {
     display_message "configure options:"
     for OPTION in "$@"; do
-        if [[ -n ${OPTION+set} ]]; then
+        if [[ -n ${OPTION} ]]; then
             display_message "${OPTION}"
         fi
     done
