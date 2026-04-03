@@ -349,6 +349,13 @@ main()
         with_boost="--with-boost=${PREFIX}"
     fi
 
+    CONFIGURE_OPTIONS=(
+        $(
+        for i in "${CONFIGURE_OPTIONS[@]}"; do
+            [[ -n "$i" ]] && echo "$i;
+        done
+        )
+    )
 
     # handle help
     if [[ "${DISPLAY_HELP}" == "yes" ]]; then
