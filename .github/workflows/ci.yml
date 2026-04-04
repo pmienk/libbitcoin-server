@@ -118,7 +118,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install git build-essential autoconf automake libtool pkg-config ${{ matrix.package || '' }}
-          if [[ -n "${{ matrix.coverage }}" == "lcov" ]]; then
+          if [[ "${{ matrix.coverage }}" == "lcov" ]]; then
               sudo apt-get install lcov
           fi
 
@@ -275,7 +275,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install git build-essential autoconf automake libtool pkg-config ${{ matrix.package || '' }}
-          if [[ -n "${{ matrix.coverage }}" == "lcov" ]]; then
+          if [[ "${{ matrix.coverage }}" == "lcov" ]]; then
               sudo apt-get install lcov
           fi
 
