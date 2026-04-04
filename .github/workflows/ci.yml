@@ -298,7 +298,7 @@ jobs:
         shell: bash
         run: |
           ./builds/cmake/install-cmake.sh
-            --prefix=${{ ${{ env.SRC_PATH }}/prefix
+            --prefix=${{ env.SRC_PATH }}/prefix
             --build-src-dir=${{ env.SRC_PATH }}
             --build-obj-dir="obj"
             --build-obj-dir-relative
