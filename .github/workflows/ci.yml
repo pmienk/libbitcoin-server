@@ -142,7 +142,7 @@ jobs:
         shell: bash
         run: |
           ./builds/gnu/install-gnu.sh
-            --prefix=${{ ${{ env.SRC_PATH }}/prefix
+            --prefix=${{ env.SRC_PATH }}/prefix
             --build-src-dir=${{ env.SRC_PATH }}
             --build-obj-dir="obj"
             --build-obj-dir-relative
