@@ -106,6 +106,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Sources directory path assignment
+        shell: bash
+        run: |
+          cd ..
+          echo SRC_PATH="$(pwd)" >> $GITHUB_ENV
+
       - name: Prepare toolchain [linux]
         if: ${{ startsWith(matrix.image, 'ubuntu') }}
         shell: bash
@@ -125,21 +131,19 @@ jobs:
               echo "PATH=/opt/homebrew/opt/${{ matrix.llvm }}/bin:${PATH}" >> $GITHUB_ENV
           fi
 
-      - name: Conditional Environmental Computation
+      - name: Environmental Computation
         shell: bash
         run: |
           if [[ ${{ matrix.link }} == 'dynamic' ]]; then
-              echo SRC_PATH="${{ github.workspace }}%/*"
-              echo "LDFLAGS=-Wl,-rpath,${SRC_PATH}/prefix/lib" >> $GITHUB_ENV
+              echo "LDFLAGS=-Wl,-rpath,${{ env.SRC_PATH }}/prefix/lib" >> $GITHUB_ENV
           fi
 
       - name: Execute installation
         shell: bash
         run: |
-          SRC_PATH="${{ github.workspace }}%/*"
           ./builds/gnu/install-gnu.sh
-            --prefix=${{ ${SRC_PATH}/prefix
-            --build-src-dir=${SRC_PATH}
+            --prefix=${{ ${{ env.SRC_PATH }}/prefix
+            --build-src-dir=${{ env.SRC_PATH }}
             --build-obj-dir="obj"
             --build-obj-dir-relative
             --build-use-local-src
@@ -152,9 +156,8 @@ jobs:
         if: ${{ matrix.coverage == 'lcov' }}
         shell: bash
         run: |
-          SRC_PATH="${{ github.workspace }}%/*"
           lcov --ignore-errors version,gcov,mismatch,mismatch --directory . --capture --output-file coverage.info
-          lcov --ignore-errors unused --remove coverage.info "${SRC_PATH}/prefix/*" "${{ github.workspace }}/examples/*" "${{ github.workspace }}/test/*"  --output-file coverage.info
+          lcov --ignore-errors unused --remove coverage.info "${{ env.SRC_PATH }}/prefix/*" "${{ github.workspace }}/examples/*" "${{ github.workspace }}/test/*"  --output-file coverage.info
 
       - name: Coveralls.io upload
         if: ${{ matrix.coverage == 'lcov' }}
@@ -259,6 +262,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Sources directory path assignment
+        shell: bash
+        run: |
+          cd ..
+          echo SRC_PATH="$(pwd)" >> $GITHUB_ENV
+
       - name: Prepare toolchain [linux]
         if: ${{ startsWith(matrix.image, 'ubuntu') }}
         shell: bash
@@ -278,21 +287,19 @@ jobs:
               echo "PATH=/opt/homebrew/opt/${{ matrix.llvm }}/bin:${PATH}" >> $GITHUB_ENV
           fi
 
-      - name: Conditional Environmental Computation
+      - name: Environmental Computation
         shell: bash
         run: |
           if [[ ${{ matrix.link }} == 'dynamic' ]]; then
-              echo SRC_PATH="${{ github.workspace }}%/*"
-              echo "LDFLAGS=-Wl,-rpath,${SRC_PATH}/prefix/lib" >> $GITHUB_ENV
+              echo "LDFLAGS=-Wl,-rpath,${{ env.SRC_PATH }}/prefix/lib" >> $GITHUB_ENV
           fi
 
       - name: Execute installation
         shell: bash
         run: |
-          SRC_PATH="${{ github.workspace }}%/*"
           ./builds/cmake/install-cmake.sh
-            --prefix=${{ ${SRC_PATH}/prefix
-            --build-src-dir=${SRC_PATH}
+            --prefix=${{ ${{ env.SRC_PATH }}/prefix
+            --build-src-dir=${{ env.SRC_PATH }}
             --build-obj-dir="obj"
             --build-obj-dir-relative
             --build-use-local-src
@@ -305,9 +312,8 @@ jobs:
         if: ${{ matrix.coverage == 'lcov' }}
         shell: bash
         run: |
-          SRC_PATH="${{ github.workspace }}%/*"
           lcov --ignore-errors version,gcov,mismatch,mismatch --directory . --capture --output-file coverage.info
-          lcov --ignore-errors unused --remove coverage.info "${SRC_PATH}/prefix/*" "${{ github.workspace }}/examples/*" "${{ github.workspace }}/test/*"  --output-file coverage.info
+          lcov --ignore-errors unused --remove coverage.info "${{ env.SRC_PATH }}/prefix/*" "${{ github.workspace }}/examples/*" "${{ github.workspace }}/test/*"  --output-file coverage.info
 
       - name: Coveralls.io upload
         if: ${{ matrix.coverage == 'lcov' }}
