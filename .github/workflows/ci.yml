@@ -18,7 +18,7 @@ jobs:
       matrix:
         include:
           - image: macos-latest
-            config: "debug"
+            config: "release"
             link: "dynamic"
             cc: "clang"
             cxx: "clang++"
@@ -29,7 +29,7 @@ jobs:
             options: "--enable-isystem"
 
           - image: macos-latest
-            config: "debug"
+            config: "release"
             link: "static"
             cc: "clang"
             cxx: "clang++"
@@ -164,7 +164,7 @@ jobs:
       matrix:
         include:
           - image: macos-latest
-            config: "debug"
+            config: "release"
             link: "dynamic"
             cc: "clang"
             cxx: "clang++"
@@ -175,7 +175,7 @@ jobs:
             options: "--verbose"
 
           - image: macos-latest
-            config: "debug"
+            config: "release"
             link: "static"
             cc: "clang"
             cxx: "clang++"
