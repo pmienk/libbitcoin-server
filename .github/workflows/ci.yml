@@ -142,15 +142,15 @@ jobs:
         shell: bash
         run: >
           ./builds/gnu/install-gnu.sh
-            --prefix=${{ env.SRC_PATH }}/prefix
-            --build-src-dir=${{ env.SRC_PATH }}
-            --build-obj-dir="obj"
-            --build-obj-dir-relative
-            --build-use-local-src
-            --build-config=${{ matrix.config }}
-            --build-link=${{ matrix.link }}
-            ${{ matrix.boost }}
-            ${{ matrix.secp256k1 }}
+          --prefix=${{ env.SRC_PATH }}/prefix
+          --build-src-dir=${{ env.SRC_PATH }}
+          --build-obj-dir="obj"
+          --build-obj-dir-relative
+          --build-use-local-src
+          --build-config=${{ matrix.config }}
+          --build-link=${{ matrix.link }}
+          ${{ matrix.boost }}
+          ${{ matrix.secp256k1 }}
 
       - name: Coverage calculation
         if: ${{ matrix.coverage == 'lcov' }}
@@ -298,15 +298,15 @@ jobs:
         shell: bash
         run: >
           ./builds/cmake/install-cmake.sh
-            --prefix=${{ env.SRC_PATH }}/prefix
-            --build-src-dir=${{ env.SRC_PATH }}
-            --build-obj-dir="obj"
-            --build-obj-dir-relative
-            --build-use-local-src
-            --build-config=${{ matrix.config }}
-            --build-link=${{ matrix.link }}
-            ${{ matrix.boost }}
-            ${{ matrix.secp256k1 }}
+          --prefix=${{ env.SRC_PATH }}/prefix
+          --build-src-dir=${{ env.SRC_PATH }}
+          --build-obj-dir="obj"
+          --build-obj-dir-relative
+          --build-use-local-src
+          --build-config=${{ matrix.config }}
+          --build-link=${{ matrix.link }}
+          ${{ matrix.boost }}
+          ${{ matrix.secp256k1 }}
 
       - name: Coverage calculation
         if: ${{ matrix.coverage == 'lcov' }}
