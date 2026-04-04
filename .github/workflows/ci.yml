@@ -140,7 +140,7 @@ jobs:
 
       - name: Execute installation
         shell: bash
-        run: |
+        run: >
           ./builds/gnu/install-gnu.sh
             --prefix=${{ env.SRC_PATH }}/prefix
             --build-src-dir=${{ env.SRC_PATH }}
@@ -296,7 +296,7 @@ jobs:
 
       - name: Execute installation
         shell: bash
-        run: |
+        run: >
           ./builds/cmake/install-cmake.sh
             --prefix=${{ env.SRC_PATH }}/prefix
             --build-src-dir=${{ env.SRC_PATH }}
