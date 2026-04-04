@@ -26,7 +26,7 @@ jobs:
             coverage: ""
             boost: "--build-boost"
             secp256k1: "--build-secp256k1"
-            options: " --enable-isystem"
+            options: "--enable-isystem"
 
           - image: macos-latest
             config: "debug"
@@ -37,7 +37,7 @@ jobs:
             coverage: ""
             boost: "--build-boost"
             secp256k1: "--build-secp256k1"
-            options: " --enable-isystem"
+            options: "--enable-isystem"
 
           - image: ubuntu-24.04
             config: "debug"
@@ -48,7 +48,7 @@ jobs:
             coverage: ""
             boost: "--build-boost"
             secp256k1: "--build-secp256k1"
-            options: " --enable-isystem"
+            options: "--enable-isystem"
 
           - image: ubuntu-24.04
             config: "release"
@@ -59,7 +59,7 @@ jobs:
             coverage: ""
             boost: "--build-boost"
             secp256k1: "--build-secp256k1"
-            options: " --enable-isystem"
+            options: "--enable-isystem"
 
           - image: ubuntu-24.04
             config: "release"
@@ -70,7 +70,7 @@ jobs:
             coverage: ""
             boost: "--build-boost"
             secp256k1: "--build-secp256k1"
-            options: " --enable-isystem"
+            options: "--enable-isystem"
 
           - image: ubuntu-24.04
             config: "release"
@@ -81,7 +81,7 @@ jobs:
             coverage: ""
             boost: "--build-boost"
             secp256k1: "--build-secp256k1"
-            options: " --enable-isystem"
+            options: "--enable-isystem"
 
           - image: ubuntu-24.04
             config: "debug"
@@ -92,7 +92,7 @@ jobs:
             coverage: ""
             boost: "--build-boost"
             secp256k1: "--build-secp256k1"
-            options: " --enable-isystem"
+            options: "--enable-isystem"
 
     runs-on: ${{ matrix.image }}
 
@@ -151,6 +151,7 @@ jobs:
           --build-link=${{ matrix.link }}
           ${{ matrix.boost }}
           ${{ matrix.secp256k1 }}
+          ${{ matrix.options }}
 
       - name: Coverage calculation
         if: ${{ matrix.coverage == 'lcov' }}
@@ -307,6 +308,7 @@ jobs:
           --build-link=${{ matrix.link }}
           ${{ matrix.boost }}
           ${{ matrix.secp256k1 }}
+          ${{ matrix.options }}
 
       - name: Coverage calculation
         if: ${{ matrix.coverage == 'lcov' }}
