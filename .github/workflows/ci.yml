@@ -136,8 +136,8 @@ jobs:
         shell: bash
         run: >
           ./builds/gnu/install-gnu.sh
-            --prefix=${{ env.LIBBITCOIN_SRC_PATH }}prefix
-            --build-src-dir=${{ env.LIBBITCOIN_SRC_PAT }}
+            --prefix=${{ github.workspace }}prefix
+            --build-src-dir=${{ github.workspace }}
             --build-obj-dir="obj"
             --build-obj-dir-relative
             --build-use-local-src
