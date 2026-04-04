@@ -168,7 +168,7 @@ jobs:
             link: "dynamic"
             cc: "clang"
             cxx: "clang++"
-            flags: ""
+            flags: "-DNDEBUG"
             coverage: ""
             boost: "--build-boost"
             secp256k1: "--build-secp256k1"
