@@ -1,0 +1,212 @@
+################################################################################
+#  Copyright (c) 2014-2026 libbitcoin-server developers (see COPYING).
+#
+#     SOON TO BE GENERATED CODE, DO NOT EDIT EXCEPT EXPERIMENTALLY
+#
+###############################################################################
+
+name: Generate Release Candidate Binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag-system:
+        description: "libbitcoin-system tag used for release generation."
+        required: true
+        type: string
+      tag-database:
+        description: "libbitcoin-database tag used for release generation."
+        required: true
+        type: string
+      tag-network:
+        description: "libbitcoin-network tag used for release generation."
+        required: true
+        type: string
+      tag-node:
+        description: "libbitcoin-node tag used for release generation."
+        required: true
+        type: string
+      tag-server:
+        description: "libbitcoin-server tag used for release generation."
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  validate-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout libbitcoin-server
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          path: libbitcoin-server
+          ref: ${{ inputs.tag-server }}
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}   # explicit for v6 reliability
+
+      - name: Checkout libbitcoin-node
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          path: libbitcoin-node
+          ref: ${{ inputs.tag-node }}
+          repository: ${{ github.repository_owner }}/libbitcoin-node
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout libbitcoin-network
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          path: libbitcoin-network
+          ref: ${{ inputs.tag-network }}
+          repository: ${{ github.repository_owner }}/libbitcoin-network
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout libbitcoin-database
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          path: libbitcoin-database
+          ref: ${{ inputs.tag-database }}
+          repository: ${{ github.repository_owner }}/libbitcoin-database
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout libbitcoin-system
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          path: libbitcoin-system
+          ref: ${{ inputs.tag-system }}
+          repository: ${{ github.repository_owner }}/libbitcoin-system
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify all tags exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          for repo in server node network database system; do
+            tag_var="tag_${repo}"
+            tag="${!tag_var}"
+            dir="libbitcoin-${repo}"
+            echo "Verifying tag '${tag}' in ${dir}..."
+            if ! git -C "${dir}" rev-parse --verify "refs/tags/${tag}" >/dev/null 2>&1; then
+              echo "::error::Tag '${tag}' does not exist in libbitcoin-${repo}"
+              exit 1
+            fi
+            echo "✓ Validated tag '${tag}' in libbitcoin-${repo}"
+          done
+
+  build-and-sign:
+    needs: validate-tags
+    runs-on: ${{ matrix.os }}
+    environment: signing
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux - GNU
+          - os: ubuntu-latest
+            toolchain: gnu
+            cc: gcc
+            cxx: g++
+            config: debug
+            link: static
+
+          # Linux - CMake + Clang
+          - os: ubuntu-latest
+            toolchain: cmake
+            cc: clang
+            cxx: clang++
+            config: release
+            link: static
+
+          # Windows
+          - os: windows-latest
+            toolchain: msbuild
+            config: StaticDebug
+            platform: x64
+            version: vs2022
+
+          - os: windows-latest
+            toolchain: msbuild
+            config: StaticRelease
+            platform: x64
+            version: vs2022
+
+          # Add macOS entries here when ready
+          # - os: macos-latest
+          #   toolchain: ...
+
+    steps:
+      - name: Checkout all repositories
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          path: libbitcoin-${{ matrix.toolchain == 'msbuild' && 'server' || '' }}  # adjust as needed
+        # Better: repeat the 5 checkout steps like in validate-tags (or extract to a composite action)
+
+      # (Repeat the 5 checkout blocks here — or create a reusable composite action)
+
+      - name: Prepare toolchain (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git build-essential autoconf automake libtool pkg-config
+
+      - name: Prepare toolchain (Windows)
+        if: startsWith(matrix.os, 'windows')
+        uses: microsoft/setup-msbuild@v3
+        with:
+          msbuild-architecture: x64
+
+      # ... your build steps (cmake / gnu / msbuild) remain mostly the same ...
+
+      - name: Normalize artifact name and location
+        id: artifact
+        shell: bash
+        run: |
+          mkdir -p candidate
+
+          if [[ "${{ matrix.toolchain }}" == "msbuild" ]]; then
+            CANDIDATE="libbitcoin-server/bin/bs.exe"
+            NAME="bs-${{ matrix.toolchain }}-${{ matrix.platform }}-${{ matrix.version }}-${{ matrix.config }}.exe"
+          else
+            CANDIDATE="prefix/bin/bs"
+            NAME="bs-${{ matrix.toolchain }}-${{ matrix.link }}-${{ matrix.config }}"
+          fi
+
+          mv "${CANDIDATE}" "candidate/${NAME}" || {
+            echo "Binary not found at expected location: ${CANDIDATE}"
+            ls -R prefix || true
+            exit 1
+          }
+
+          echo "name=${NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Sign binary with GPG
+        uses: crazy-max/ghaction-import-gpg@v7
+        with:
+          gpg_private_key: ${{ secrets.SIGNING_KEY }}
+          git_user_signingkey: true
+
+      - name: Create detached signature
+        shell: bash
+        run: |
+          gpg --batch --yes --pinentry-mode loopback --armor \
+            --detach-sign --output "candidate/${{ steps.artifact.outputs.name }}.asc" \
+            "candidate/${{ steps.artifact.outputs.name }}"
+
+      - name: Upload to draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag-server }}
+          draft: true
+          prerelease: true
+          files: |
+            candidate/${{ steps.artifact.outputs.name }}
+            candidate/${{ steps.artifact.outputs.name }}.asc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
