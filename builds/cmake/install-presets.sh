@@ -14,6 +14,9 @@
 # --build-src-dir=<path>      Location of sources.
 # --build-full-repositories   Sync full github repositories.
 #                               Default clones depth 1, single branch
+# --build-post-install-clean  Clean dependencies post install.
+# --build-skip-tests          Skip test execution.
+
 # --build-parallel=<int>      Number of jobs to run simultaneously.
 #                               Default: discovery
 # --build-use-local-src       Use existing sources in build-src-dir path.
@@ -93,6 +96,7 @@ main()
             (--build-full-repositories) BUILD_FULL_REPOSITORIES="yes";;
             (--build-use-local-src)     BUILD_USE_LOCAL_SRC="yes";;
             (--build-parallel=*)        PARALLEL="${OPTION#*=}";;
+            (--build-post-install-clean)BUILD_POST_INSTALL_CLEAN="yes";;
             (--build-skip-tests)        BUILD_SKIP_TESTS="yes";;
             (--verbose)                 DISPLAY_VERBOSE="yes";;
             (--help|-h)                 DISPLAY_HELP="yes";;
@@ -479,6 +483,9 @@ main()
         export CPPFLAGS="${CPPFLAGS} ${secp256k1_FLAGS[@]}"
         build_cmake "secp256k1" "." "${PARALLEL}" "${secp256k1_OPTIONS[@]}" "${CONFIGURE_OPTIONS[@]}"
         install_make "secp256k1"
+        if [[ "${BUILD_POST_INSTALL_CLEAN}" == "yes" ]]; then
+            clean_make "secp256k1"
+        fi
         export CPPFLAGS="${SAVE_CPPFLAGS}"
     fi
 
@@ -487,6 +494,9 @@ main()
     export CPPFLAGS="${CPPFLAGS} ${libbitcoin_system_FLAGS[@]}"
     build_preset "libbitcoin-system" "builds/cmake" "${PARALLEL}" "${libbitcoin_system_OPTIONS[@]}" "${CONFIGURE_OPTIONS[@]}"
     install_make "libbitcoin-system"
+    if [[ "${BUILD_POST_INSTALL_CLEAN}" == "yes" ]]; then
+        clean_make "libbitcoin-system"
+    fi
     export CPPFLAGS="${SAVE_CPPFLAGS}"
 
     source_github "${libbitcoin_database_OWNER}" "libbitcoin-database" "${libbitcoin_database_TAG}"
@@ -494,6 +504,9 @@ main()
     export CPPFLAGS="${CPPFLAGS} ${libbitcoin_database_FLAGS[@]}"
     build_preset "libbitcoin-database" "builds/cmake" "${PARALLEL}" "${libbitcoin_database_OPTIONS[@]}" "${CONFIGURE_OPTIONS[@]}"
     install_make "libbitcoin-database"
+    if [[ "${BUILD_POST_INSTALL_CLEAN}" == "yes" ]]; then
+        clean_make "libbitcoin-database"
+    fi
     export CPPFLAGS="${SAVE_CPPFLAGS}"
 
     source_github "${libbitcoin_network_OWNER}" "libbitcoin-network" "${libbitcoin_network_TAG}"
@@ -501,6 +514,9 @@ main()
     export CPPFLAGS="${CPPFLAGS} ${libbitcoin_network_FLAGS[@]}"
     build_preset "libbitcoin-network" "builds/cmake" "${PARALLEL}" "${libbitcoin_network_OPTIONS[@]}" "${CONFIGURE_OPTIONS[@]}"
     install_make "libbitcoin-network"
+    if [[ "${BUILD_POST_INSTALL_CLEAN}" == "yes" ]]; then
+        clean_make "libbitcoin-network"
+    fi
     export CPPFLAGS="${SAVE_CPPFLAGS}"
 
     source_github "${libbitcoin_node_OWNER}" "libbitcoin-node" "${libbitcoin_node_TAG}"
@@ -508,6 +524,9 @@ main()
     export CPPFLAGS="${CPPFLAGS} ${libbitcoin_node_FLAGS[@]}"
     build_preset "libbitcoin-node" "builds/cmake" "${PARALLEL}" "${libbitcoin_node_OPTIONS[@]}" "${CONFIGURE_OPTIONS[@]}"
     install_make "libbitcoin-node"
+    if [[ "${BUILD_POST_INSTALL_CLEAN}" == "yes" ]]; then
+        clean_make "libbitcoin-node"
+    fi
     export CPPFLAGS="${SAVE_CPPFLAGS}"
 
     source_github "${libbitcoin_server_OWNER}" "libbitcoin-server" "${libbitcoin_server_TAG}"
@@ -518,6 +537,9 @@ main()
         test_make "libbitcoin-server" "test" "${PARALLEL}"
     fi
     install_make "libbitcoin-server"
+    if [[ "${BUILD_POST_INSTALL_CLEAN}" == "yes" ]]; then
+        clean_make "libbitcoin-server"
+    fi
     export CPPFLAGS="${SAVE_CPPFLAGS}"
 
     msg_success "Completed successfully."
@@ -681,6 +703,38 @@ test_make()
     pop_directory # BUILD_SRC_DIR/PROJECT
 
     msg_success "'${PROJECT}' test complete."
+}
+
+clean_make()
+{
+    local PROJECT="$1"
+    shift 1
+
+    msg "Preparing to clean ${PROJECT}"
+
+    push_directory "${BUILD_SRC_DIR}/${PROJECT}"
+
+    if [[ "${BUILD_OBJ_DIR_RELATIVE}" == "yes" ]]; then
+        push_directory "${BUILD_OBJ_DIR}"
+    else
+        push_directory "${BUILD_OBJ_DIR}/${PROJECT}"
+    fi
+
+    disable_exit_on_error
+
+    make clean
+
+    local RESULT=$?
+
+    if [[ ${RESULT} -ne 0 ]]; then
+        msg_error "Encountered error, please see test.log contents above."
+        exit ${RESULT}
+    fi
+
+    pop_directory # BUILD_OBJ_DIR
+    pop_directory # BUILD_SRC_DIR/PROJECT
+
+    msg_success "'${PROJECT}' clean complete."
 }
 
 build_boost()
@@ -881,6 +935,7 @@ display_build_variables()
     msg "BUILD_CONFIG                    : ${BUILD_CONFIG}"
     msg "BUILD_LINK                      : ${BUILD_LINK}"
     msg "BUILD_FULL_REPOSITORIES         : ${BUILD_FULL_REPOSITORIES}"
+    msg "BUILD_POST_INSTALL_CLEAN        : ${BUILD_POST_INSTALL_CLEAN}"
     msg "BUILD_USE_LOCAL_SRC             : ${BUILD_USE_LOCAL_SRC}"
     msg "BUILD_SKIP_TESTS                : ${BUILD_SKIP_TESTS}"
     msg "PARALLEL                        : ${PARALLEL}"
@@ -945,6 +1000,9 @@ help()
     msg "--build-src-dir=<path>      Location of sources."
     msg "--build-full-repositories   Sync full github repositories."
     msg "                              Default clones depth 1, single branch"
+    msg "--build-post-install-clean  Clean dependencies post install."
+    msg "--build-skip-tests          Skip test execution."
+
     msg "--build-parallel=<int>      Number of jobs to run simultaneously."
     msg "                              Default: discovery"
     msg "--build-use-local-src       Use existing sources in build-src-dir path."
