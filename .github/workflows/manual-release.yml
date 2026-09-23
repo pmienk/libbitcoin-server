@@ -202,21 +202,21 @@ jobs:
             toolchain: msbuild
             configuration: StaticDebug
             platform: "x64"
-            version: "vs2022"
+            version: "vs2026"
             basename: "bs-win64-StaticDebug"
 
           - image: windows-latest
             toolchain: msbuild
             configuration: StaticRelease
             platform: "x64"
-            version: "vs2022"
+            version: "vs2026"
             basename: "bs-win64-StaticRelease"
 
           - image: windows-latest
             toolchain: msbuild
             configuration: StaticDebug
             platform: "x64"
-            version: "vs2022"
+            version: "vs2026"
             options: "--enable-shani"
             basename: "bs-win64-StaticDebug-shani"
 
@@ -224,7 +224,7 @@ jobs:
             toolchain: msbuild
             configuration: StaticRelease
             platform: "x64"
-            version: "vs2022"
+            version: "vs2026"
             options: "--enable-shani"
             basename: "bs-win64-StaticRelease-shani"
 
