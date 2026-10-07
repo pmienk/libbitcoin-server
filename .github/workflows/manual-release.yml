@@ -174,7 +174,7 @@ jobs:
             options: "--enable-avx2"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl, -static"
+            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl,-static"
             image: ubuntu-26.04
             container: alpine:3.20
 
@@ -185,7 +185,7 @@ jobs:
             options: "--enable-avx2 --enable-shani"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl, -static"
+            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl,-static"
             image: ubuntu-26.04
             container: alpine:3.20
 
@@ -196,7 +196,7 @@ jobs:
             options: "--enable-avx512"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl, -static"
+            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl,-static"
             image: ubuntu-26.04
             container: alpine:3.20
 
@@ -207,7 +207,7 @@ jobs:
             options: "--enable-avx512 --enable-shani"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl, -static"
+            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl,-static"
             image: ubuntu-26.04
             container: alpine:3.20
 
@@ -217,7 +217,7 @@ jobs:
             toolchain: gnu
             cc: "gcc"
             cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl, -static"
+            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl,-static"
             image: ubuntu-26.04-arm
             container: alpine:3.20
 
@@ -228,7 +228,7 @@ jobs:
             options: "--enable-sha"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl, -static"
+            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl,-static"
             image: ubuntu-26.04-arm
             container: alpine:3.20
 
@@ -239,7 +239,7 @@ jobs:
             options: "--enable-sha --enable-sha3"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl, -static"
+            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc -Wl,-static"
             image: ubuntu-26.04-arm
             container: alpine:3.20
 
