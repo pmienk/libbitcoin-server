@@ -390,7 +390,7 @@ console_bs_CPPFLAGS = \
     ${src_libbitcoin_server_la_CPPFLAGS}
 
 console_bs_LDFLAGS = \
-    ${src_libbitcoin_server_la_LDFLAGS}
+    -all-static ${src_libbitcoin_server_la_LDFLAGS}
 
 console_bs_LDADD = \
     ${src_libbitcoin_server_la_LIBS} \
