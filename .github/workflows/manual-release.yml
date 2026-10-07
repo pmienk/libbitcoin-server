@@ -491,7 +491,6 @@ jobs:
           --build-link="${{ matrix.link }}"
           --build-skip-tests
           --build-boost
-          --build-secp256k1
           ${{ matrix.options }}
 
       - name: Build [gnu]
@@ -508,7 +507,6 @@ jobs:
           --build-link="${{ matrix.link }}"
           --build-skip-tests
           --build-boost
-          --build-secp256k1
           ${{ matrix.options }}
 
       - name: Build [msbuild]
@@ -534,7 +532,6 @@ jobs:
           --build-preset="${{ matrix.preset }}"
           --build-skip-tests
           --build-boost
-          --build-secp256k1
           ${{ matrix.options }}
 
       - name: Normalize output location
