@@ -133,7 +133,7 @@ AC_ARG_ENABLE([force_static],
     [enable_force_static=no])
 AC_MSG_RESULT([$enable_force_static])
 AM_CONDITIONAL([ENABLE_FORCE_STATIC], [test "x${enable_force_static}" != "xno"])
-AS_IF([test "x${enable_force_static}" == "xno"], [AC_SUBST([LIBTOOL_ALL_STATIC],[-all-static])])
+AS_IF([test "x${enable_force_static}" != "xno"], [AC_SUBST([LIBTOOL_ALL_STATIC],[-all-static])])
 
 AC_MSG_CHECKING([--with-pkgconfigdir option])
 AC_ARG_WITH([pkgconfigdir],
