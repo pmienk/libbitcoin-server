@@ -149,64 +149,11 @@ jobs:
 
       matrix:
         include:
-          - basename: "bs-macos-arm64"
-            configuration: release
-            link: static
-            toolchain: cmake
-            options: "-Denable-sha=ON -Denable-aes=ON -Denable-sha3=ON"
-            cc: "clang"
-            cxx: "clang++"
-            image: macos-latest
-            deployment_target: "13.3"
-
-          - basename: "bs-macos-x64"
-            configuration: release
-            link: static
-            toolchain: cmake
-            options: "-Denable-aesni=ON -Denable-avx2=ON -Denable-sse41=ON"
-            cc: "clang"
-            cxx: "clang++"
-            image: macos-26-intel
-            deployment_target: "13.3"
-
           - basename: "bs-musl-x64"
             configuration: release
             link: static
             toolchain: gnu
-            options: "--enable-avx2"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-x64-shani"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx2 --enable-shani"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-x64-avx512"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx512"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-x64-avx512-shani"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx512 --enable-shani"
+            options: "--enable-avx2 --enable-forcestatic"
             cc: "gcc"
             cxx: "g++"
             linkflags: "-static -no-pie -static-libstdc++ -static-libgcc"
@@ -217,164 +164,12 @@ jobs:
             configuration: release
             link: static
             toolchain: gnu
+            options: "--enable-forcestatic"
             cc: "gcc"
             cxx: "g++"
             linkflags: "-static -no-pie -static-libstdc++ -static-libgcc"
             image: ubuntu-26.04-arm
             container: alpine:3.22.6
-
-          - basename: "bs-musl-arm64-crypto"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-sha"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04-arm
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-arm64-sha3"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-sha --enable-sha3"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04-arm
-            container: alpine:3.22.6
-
-          - basename: "bs-linux-x64"
-            configuration: release
-            link: static
-            toolchain: cmake
-            options: "-Denable-avx2=ON"
-            cc: "clang-18"
-            cxx: "clang++-18"
-            linkflags: "-static-libstdc++ -static-libgcc"
-            image: ubuntu-24.04
-
-          - basename: "bs-linux-x64-shani"
-            configuration: release
-            link: static
-            toolchain: cmake
-            options: "-Denable-avx2=ON -Denable-shani=ON"
-            cc: "clang-18"
-            cxx: "clang++-18"
-            linkflags: "-static-libstdc++ -static-libgcc"
-            image: ubuntu-24.04
-
-          - basename: "bs-linux-x64-avx512"
-            configuration: release
-            link: static
-            toolchain: cmake
-            options: "-Denable-avx512=ON"
-            cc: "clang-18"
-            cxx: "clang++-18"
-            linkflags: "-static-libstdc++ -static-libgcc"
-            image: ubuntu-24.04
-
-          - basename: "bs-linux-x64-avx512-shani"
-            configuration: release
-            link: static
-            toolchain: cmake
-            options: "-Denable-avx512=ON -Denable-shani=ON"
-            cc: "clang-18"
-            cxx: "clang++-18"
-            linkflags: "-static-libstdc++ -static-libgcc"
-            image: ubuntu-24.04
-
-          - basename: "bs-linux-arm64"
-            configuration: release
-            link: static
-            toolchain: cmake
-            cc: "gcc-14"
-            cxx: "g++-14"
-            linkflags: "-static-libstdc++ -static-libgcc"
-            image: ubuntu-24.04-arm
-
-          - basename: "bs-linux-arm64-crypto"
-            configuration: release
-            link: static
-            toolchain: cmake
-            options: "-Denable-sha=ON"
-            cc: "gcc-14"
-            cxx: "g++-14"
-            linkflags: "-static-libstdc++ -static-libgcc"
-            image: ubuntu-24.04-arm
-
-          - basename: "bs-linux-arm64-sha3"
-            configuration: release
-            link: static
-            toolchain: cmake
-            options: "-Denable-sha=ON -Denable-sha3=ON"
-            cc: "gcc-14"
-            cxx: "g++-14"
-            linkflags: "-static-libstdc++ -static-libgcc"
-            image: ubuntu-24.04-arm
-
-          - basename: "bs-windows-x64"
-            configuration: StaticRelease
-            toolchain: msbuild
-            options: "--enable-avx2"
-            platform: "x64"
-            toolset: "v145"
-            version: "vs2026"
-            image: windows-latest
-
-          - basename: "bs-windows-x64-shani"
-            configuration: StaticRelease
-            toolchain: msbuild
-            options: "--enable-shani"
-            platform: "x64"
-            toolset: "v145"
-            version: "vs2026"
-            image: windows-latest
-
-          - basename: "bs-windows-x64-avx512"
-            configuration: StaticRelease
-            toolchain: msbuild
-            options: "--enable-avx512"
-            platform: "x64"
-            toolset: "v145"
-            version: "vs2026"
-            image: windows-latest
-
-          - basename: "bs-windows-x64-avx512-shani"
-            configuration: StaticRelease
-            toolchain: msbuild
-            options: "--enable-avx512 --enable-shani"
-            platform: "x64"
-            toolset: "v145"
-            version: "vs2026"
-            image: windows-latest
-
-          - basename: "bs-windows-arm64"
-            configuration: StaticRelease
-            toolchain: msbuild
-            platform: "ARM64"
-            toolset: "v145"
-            version: "vs2026"
-            image: windows-11-vs2026-arm
-
-          - basename: "bs-windows-arm64-crypto"
-            configuration: StaticRelease
-            toolchain: msbuild
-            options: "--enable-sha"
-            platform: "ARM64"
-            toolset: "v145"
-            version: "vs2026"
-            image: windows-11-vs2026-arm
-
-          - basename: "bs-windows-arm64-sha3"
-            configuration: StaticRelease
-            toolchain: msbuild
-            options: "--enable-sha --enable-sha3"
-            platform: "ARM64"
-            toolset: "v145"
-            version: "vs2026"
-            image: windows-11-vs2026-arm
 
     env:
       CC: '${{ matrix.cc }}'
