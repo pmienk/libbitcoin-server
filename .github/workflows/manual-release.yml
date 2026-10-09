@@ -149,91 +149,14 @@ jobs:
 
       matrix:
         include:
-          - basename: "bs-musl-x64-allstatic-nopie-static-staticlibs"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx2 --enable-forcestatic"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-x64-allstatic-static-staticlibs"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx2 --enable-forcestatic"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-static -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-x64-allstatic-nopie-staticlibs"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx2 --enable-forcestatic"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-no-pie -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-x64-allstatic-nopie"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx2 --enable-forcestatic"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-no-pie"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-x64-nopie-static-staticlibs"
+          - basename: "bs-musl-x64"
             configuration: release
             link: static
             toolchain: gnu
             options: "--enable-avx2"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "-static -no-pie -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-x64-static-staticlibs"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx2"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-static -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-x64-nopie-staticlibs"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx2"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-no-pie -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
-          - basename: "bs-musl-x64-nopie"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx2"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "-no-pie"
+            linkflags: "-all-static -Wl,-static -no-pie -static-libstdc++ -static-libgcc"
             image: ubuntu-26.04
             container: alpine:3.22.6
 
