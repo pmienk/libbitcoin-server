@@ -158,7 +158,7 @@ jobs:
             cxx: "g++"
             linkflags: "-all-static -Wl,-static -no-pie -static-libstdc++ -static-libgcc"
             image: ubuntu-26.04
-            container: alpine:3.22.6
+            container: docker.io/library/alpine:3.22.6
 
     env:
       CC: '${{ matrix.cc }}'
