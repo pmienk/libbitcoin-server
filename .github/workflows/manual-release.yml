@@ -142,8 +142,7 @@ jobs:
       candidate_identifier: ${{ steps.normalizer.outputs.candidate_identifier }}
 
     runs-on: ${{ matrix.image }}
-    container:
-      image: ${{ matrix.container  || null }}
+    container: ${{ matrix.container  || null }}
 
     strategy:
       fail-fast: false
@@ -160,7 +159,7 @@ jobs:
             flags: "-D_GNU_SOURCE"
             linkflags: "-all-static -Wl,-static -no-pie -static-libstdc++ -static-libgcc"
             image: ubuntu-26.04
-            container: ghcr.io/alpine/alpine:3.22.6
+            container: alpine:3.22.6
 
     env:
       CC: '${{ matrix.cc }}'
