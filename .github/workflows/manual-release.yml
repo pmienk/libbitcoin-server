@@ -157,6 +157,7 @@ jobs:
             options: "--enable-avx2"
             cc: "gcc"
             cxx: "g++"
+            flags: "-D_GNU_SOURCE"
             linkflags: "-all-static -Wl,-static -no-pie -static-libstdc++ -static-libgcc"
             image: ubuntu-26.04
             container: ghcr.io/alpine/alpine:3.22.6
