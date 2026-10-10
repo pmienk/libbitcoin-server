@@ -149,17 +149,17 @@ jobs:
 
       matrix:
         include:
-          - basename: "bs-musl-x64-gnu-gcc-static"
-            configuration: release
-            link: static
-            toolchain: gnu
-            options: "--enable-avx2"
-            cc: "gcc"
-            cxx: "g++"
-            linkflags: "--static -static-libstdc++ -static-libgcc"
-            image: ubuntu-26.04
-            container: alpine:3.22.6
-
+#          - basename: "bs-musl-x64-gnu-gcc-static"
+#            configuration: release
+#            link: static
+#            toolchain: gnu
+#            options: "--enable-avx2"
+#            cc: "gcc"
+#            cxx: "g++"
+#            linkflags: "--static -static-libstdc++ -static-libgcc"
+#            image: ubuntu-26.04
+#            container: alpine:3.22.6
+#
           - basename: "bs-musl-x64-cmake-clang-static"
             configuration: release
             link: static
@@ -170,6 +170,7 @@ jobs:
             linkflags: "--static -static-libstdc++ -static-libgcc"
             image: ubuntu-26.04
             container: alpine:3.22.6
+            packages: "cmake clang clang-dev llvm-dev"
 
     env:
       CC: '${{ matrix.cc }}'
@@ -239,7 +240,6 @@ jobs:
           apk add --no-cache ${{ matrix.packages || '' }} \
             build-base linux-headers \
             g++ make autoconf automake libtool pkgconf \
-            cmake clang \
             git bash
 
       - name: Prepare toolchain [macos]
