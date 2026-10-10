@@ -157,7 +157,8 @@ jobs:
             cc: "gcc"
             cxx: "g++"
             flags: "-D_GNU_SOURCE"
-            linkflags: "-Wl,-static -no-pie -static-libstdc++ -static-libgcc"
+            libs: "-static"
+            linkflags: "-static -static-libstdc++ -static-libgcc"
             image: ubuntu-26.04
             container: alpine:3.22.6
 
@@ -167,6 +168,7 @@ jobs:
       CFLAGS: '${{ matrix.flags }}'
       CXXFLAGS: '${{ matrix.flags }}'
       LDFLAGS: '${{ matrix.linkflags }}'
+      LIBS: '${{ matrix.libs }}'
 
     steps:
       - name: Address alpine arm64 JavaScript actions
