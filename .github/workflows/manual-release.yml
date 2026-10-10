@@ -149,7 +149,7 @@ jobs:
 
       matrix:
         include:
-          - basename: "bs-musl-x64"
+          - basename: "bs-musl-x64-allstatic-libsstatic"
             configuration: release
             link: static
             toolchain: gnu
@@ -159,6 +159,17 @@ jobs:
             flags: "-D_GNU_SOURCE"
             libs: "-static"
             linkflags: "-static -static-libstdc++ -static-libgcc"
+            image: ubuntu-26.04
+            container: alpine:3.22.6
+
+          - basename: "bs-musl-x64--static"
+            configuration: release
+            link: static
+            toolchain: gnu
+            options: "--enable-avx2"
+            cc: "gcc"
+            cxx: "g++"
+            linkflags: "--static -static-libstdc++ -static-libgcc"
             image: ubuntu-26.04
             container: alpine:3.22.6
 
