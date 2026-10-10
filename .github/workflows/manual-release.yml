@@ -170,7 +170,7 @@ jobs:
             linkflags: "--static -static-libstdc++ -static-libgcc"
             image: ubuntu-26.04
             container: alpine:3.22.6
-            packages: "cmake clang clang-dev llvm-dev"
+            packages: "cmake clang clang-dev llvm-dev compiler-rt"
 
     env:
       CC: '${{ matrix.cc }}'
