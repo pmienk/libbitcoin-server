@@ -160,17 +160,17 @@ jobs:
 #            image: ubuntu-26.04
 #            container: alpine:3.22.6
 #
-          - basename: "bs-musl-x64-cmake-clang-static"
+          - basename: "bs-musl-x64-cmake-gnu-static"
             configuration: release
             link: static
             toolchain: cmake
             options: "-Denable-avx2=ON"
-            cc: "clang"
-            cxx: "clang++"
+            cc: "gcc"
+            cxx: "g++"
             linkflags: "--static -static-libstdc++ -static-libgcc"
             image: ubuntu-26.04
             container: alpine:3.22.6
-            packages: "cmake clang clang-dev llvm-dev compiler-rt"
+            packages: "cmake"
 
     env:
       CC: '${{ matrix.cc }}'
