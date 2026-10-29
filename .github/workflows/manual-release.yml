@@ -159,7 +159,7 @@ jobs:
             image: macos-latest
             deployment_target: "13.3"
             flags: "-mcpu=apple-m1"
-            linkflags: "-Wl,-no_exported_symbols"
+            linkflags: "-Wl,-no_exported_symbols -fvisibility=hidden"
 
           - basename: "bs-macos-x64"
             configuration: release
@@ -170,7 +170,7 @@ jobs:
             cxx: "clang++"
             image: macos-26-intel
             deployment_target: "13.3"
-            flags: "-march=x86-64-v3 -mtune=generic"
+            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
             linkflags: "-Wl,-no_exported_symbols"
 
           - basename: "bs-linux-x64"
@@ -180,7 +180,7 @@ jobs:
             options: "-Denable-avx2=ON -Denable-sse41=ON"
             cc: "clang-18"
             cxx: "clang++-18"
-            linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "-static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04
             flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
@@ -192,7 +192,7 @@ jobs:
             options: "-Denable-shani=ON -Denable-avx2=ON -Denable-sse41=ON"
             cc: "clang-18"
             cxx: "clang++-18"
-            linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "-static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04
             flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
@@ -203,7 +203,7 @@ jobs:
             options: "-Denable-avxifma=ON -Denable-shani=ON -Denable-avx2=ON -Denable-sse41=ON"
             cc: "clang-18"
             cxx: "clang++-18"
-            linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "-static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04
             #flags: "-march=sapphirerapids -mtune=generic"
             flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
@@ -215,7 +215,7 @@ jobs:
             options: "-Denable-avx512ifma=ON -Denable-shani=ON -Denable-avx2=ON -Denable-sse41=ON"
             cc: "clang-18"
             cxx: "clang++-18"
-            linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "-static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04
             flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
@@ -225,7 +225,7 @@ jobs:
             toolchain: cmake
             cc: "gcc-14"
             cxx: "g++-14"
-            linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "-static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04-arm
             flags: "-march=armv8-a -mtune=generic -fvisibility=hidden"
 
@@ -236,7 +236,7 @@ jobs:
             options: "-Denable-sha=ON"
             cc: "gcc-14"
             cxx: "g++-14"
-            linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "-static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04-arm
             flags: "-march=armv8-a+crypto -mtune=generic -fvisibility=hidden"
 
@@ -247,7 +247,7 @@ jobs:
             options: "-Denable-sha=ON -Denable-sha3=ON"
             cc: "gcc-14"
             cxx: "g++-14"
-            linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "-static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04-arm
             flags: "-march=armv8.2-a+crypto+sha3 -mtune=generic -fvisibility=hidden"
 
@@ -258,7 +258,7 @@ jobs:
             options: "-Denable-avx2=ON -Denable-sse41=ON"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04
             container: alpine:3.22.6
             flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
@@ -270,7 +270,7 @@ jobs:
             options: "-Denable-shani=ON -Denable-avx2=ON -Denable-sse41=ON"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04
             container: alpine:3.22.6
             flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
@@ -282,7 +282,7 @@ jobs:
             options: "-Denable-avxifma=ON -Denable-shani=ON  -Denable-avx2=ON -Denable-sse41=ON"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04
             container: alpine:3.22.6
             flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
@@ -294,7 +294,7 @@ jobs:
             options: "-Denable-avx512ifma=ON -Denable-shani=ON -Denable-avx2=ON -Denable-sse41=ON"
             cc: "gcc"
             cxx: "g++"
-            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
+            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
             image: ubuntu-24.04
             container: alpine:3.22.6
             flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
@@ -305,7 +305,7 @@ jobs:
 #            toolchain: cmake
 #            cc: "gcc"
 #            cxx: "g++"
-#            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
+#            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
 #            image: ubuntu-24.04-arm
 #            container: alpine:3.22.6
 #
@@ -316,7 +316,7 @@ jobs:
 #            options: "-Denable-sha=ON"
 #            cc: "gcc"
 #            cxx: "g++"
-#            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
+#            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
 #            image: ubuntu-24.04-arm
 #            container: alpine:3.22.6
 #
@@ -327,7 +327,7 @@ jobs:
 #            options: "-Denable-sha=ON -Denable-sha3=ON"
 #            cc: "gcc"
 #            cxx: "g++"
-#            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
+#            linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--exclude-libs,ALL -Wl,--gc-sections"
 #            image: ubuntu-24.04-arm
 #            container: alpine:3.22.6
 #
