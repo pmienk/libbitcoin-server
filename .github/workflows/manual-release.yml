@@ -182,7 +182,7 @@ jobs:
             cxx: "clang++-18"
             linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04
-            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
 
           - basename: "bs-linux-x64-shani"
@@ -194,7 +194,7 @@ jobs:
             cxx: "clang++-18"
             linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04
-            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
           - basename: "bs-linux-x64-avxifma"
             configuration: release
@@ -206,7 +206,7 @@ jobs:
             linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04
             #flags: "-march=sapphirerapids -mtune=generic"
-            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
           - basename: "bs-linux-x64-avx512ifma"
             configuration: release
@@ -217,7 +217,7 @@ jobs:
             cxx: "clang++-18"
             linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04
-            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
           - basename: "bs-linux-arm64"
             configuration: release
@@ -227,7 +227,7 @@ jobs:
             cxx: "g++-14"
             linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04-arm
-            flags: "-march=armv8-a -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=armv8-a -mtune=generic -fvisibility=hidden"
 
           - basename: "bs-linux-arm64-crypto"
             configuration: release
@@ -238,7 +238,7 @@ jobs:
             cxx: "g++-14"
             linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04-arm
-            flags: "-march=armv8-a+crypto -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=armv8-a+crypto -mtune=generic -fvisibility=hidden"
 
           - basename: "bs-linux-arm64-sha3"
             configuration: release
@@ -249,7 +249,7 @@ jobs:
             cxx: "g++-14"
             linkflags: "-static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04-arm
-            flags: "-march=armv8.2-a+crypto+sha3 -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=armv8.2-a+crypto+sha3 -mtune=generic -fvisibility=hidden"
 
           - basename: "bs-musl-x64"
             configuration: release
@@ -261,7 +261,7 @@ jobs:
             linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04
             container: alpine:3.22.6
-            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
           - basename: "bs-musl-x64-shani"
             configuration: release
@@ -273,7 +273,7 @@ jobs:
             linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04
             container: alpine:3.22.6
-            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
           - basename: "bs-musl-x64-avxifma"
             configuration: release
@@ -285,7 +285,7 @@ jobs:
             linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04
             container: alpine:3.22.6
-            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
           - basename: "bs-musl-x64-avx512ifma"
             configuration: release
@@ -297,7 +297,7 @@ jobs:
             linkflags: "--static -static-libstdc++ -static-libgcc -Wl,--gc-sections"
             image: ubuntu-24.04
             container: alpine:3.22.6
-            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden -ffunction-sections -fdata-sections"
+            flags: "-march=x86-64-v3 -mtune=generic -fvisibility=hidden"
 
 #          - basename: "bs-musl-arm64"
 #            configuration: release
